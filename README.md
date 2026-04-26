@@ -1,4 +1,4 @@
-# Job Search Track Agent — 项目报告
+# Job Track Agent 项目报告
 
 ## 一、项目概述
 
