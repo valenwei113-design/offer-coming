@@ -1,4 +1,4 @@
-# JJobApply Agent 
+# JobApply Agent 
 
 > 🌐 [中文](#中文) | [English](#english)
 
@@ -9,7 +9,7 @@
 
 ## 一、项目概述
 
-**项目名称**：Job Track Agent
+**项目名称**：JobApply Agent
 
 **项目定位**：基于自然语言的求职投递情况数据分析工具，支持多用户，可小范围商用
 
@@ -233,7 +233,7 @@ open job-agent.html
 
 ## 1. Overview
 
-**Project Name**: Job Track Agent
+**Project Name**: JobApply Agent
 
 **Purpose**: A natural-language job application tracking and analytics tool with multi-user support, suitable for small-scale deployment.
 
