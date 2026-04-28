@@ -1,5 +1,12 @@
 # Job Track Agent
 
+> 🌐 [中文](#中文) | [English](#english)
+
+---
+
+<a name="中文"></a>
+# 中文
+
 ## 一、项目概述
 
 **项目名称**：Job Track Agent
@@ -216,5 +223,229 @@ uvicorn db_api:app --host 0.0.0.0 --port 8000
 uvicorn db_api:app --host 0.0.0.0 --port 8000 --reload
 
 # 前端直接用浏览器打开
+open job-agent.html
+```
+
+---
+
+<a name="english"></a>
+# English
+
+## 1. Overview
+
+**Project Name**: Job Track Agent
+
+**Purpose**: A natural-language job application tracking and analytics tool with multi-user support, suitable for small-scale deployment.
+
+**Key Features**: Query your application data in plain Chinese or English; real-time data visualization dashboard; AI-powered image/screenshot parsing to auto-fill application records; create, edit, and delete records online; search, sort, and paginate; invite-code registration system; admin panel.
+
+---
+
+## 2. Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| LLM (Chat) | DeepSeek V3 (via API) |
+| LLM (Image Recognition) | Claude Haiku 4.5 (via Anthropic API) |
+| Backend | Python FastAPI + uvicorn |
+| Database | PostgreSQL |
+| Frontend | Vanilla HTML + Chart.js |
+| Version Control | GitHub |
+
+---
+
+## 3. Architecture
+
+```
+User Browser
+    │
+    ├── Left Panel (HTML + Chart.js)
+    │       └── GET /stats/*  →  live chart data
+    │
+    ├── Main Area (application list + search/sort/pagination + form)
+    │       └── GET/POST/PUT/DELETE /applications
+    │
+    ├── AI Chat Panel (collapsible)
+    │       │
+    │       └── POST /chat (JWT auth)
+    │               │
+    │               ├── DeepSeek API: natural language → SQL (user_id injected)
+    │               ├── PostgreSQL executes query
+    │               └── DeepSeek API: results → natural language reply
+    │
+    └── Auto-Parse (upload image or Ctrl+V paste screenshot)
+            │
+            └── POST /applications/parse-image (JWT auth)
+                    │
+                    └── Claude Haiku 4.5 Vision: image → structured JSON fields
+```
+
+---
+
+## 4. Database Schema
+
+### Table 1: job_applications
+| Column | Type | Description |
+|--------|------|-------------|
+| id | SERIAL | Primary key |
+| company | TEXT | Company name |
+| position | TEXT | Job title |
+| applied_date | DATE | Application date |
+| location | TEXT | Country / Region |
+| link | TEXT | Job posting URL |
+| feedback | TEXT | Status (NULL=Pending, Fail, Offer, Interview, Online Assessment) |
+| work_type | TEXT | Remote / Onsite / Hybrid |
+| user_id | INTEGER | Owner (foreign key) |
+
+### Table 2: users
+| Column | Type | Description |
+|--------|------|-------------|
+| id | SERIAL | Primary key |
+| email | TEXT | Email (unique) |
+| password_hash | TEXT | bcrypt hash |
+| is_admin | BOOLEAN | Admin flag |
+| created_at | TIMESTAMPTZ | Registration time |
+
+### Table 3: invite_codes
+| Column | Type | Description |
+|--------|------|-------------|
+| id | SERIAL | Primary key |
+| code | TEXT | Invite code (unique) |
+| created_by | INTEGER | Issuing admin |
+| used_by | INTEGER | Redeemer |
+| is_active | BOOLEAN | Still valid |
+| created_at | TIMESTAMPTZ | Created at |
+| used_at | TIMESTAMPTZ | Redeemed at |
+
+### Table 4: chat_usage
+| Column | Type | Description |
+|--------|------|-------------|
+| user_id | INTEGER | User ID |
+| date | DATE | Date |
+| count | INTEGER | Daily usage count |
+
+### Table 5: work_permits
+| Column | Type | Description |
+|--------|------|-------------|
+| country | TEXT | Country |
+| visa | TEXT | Visa / work permit type |
+| annual_salary | TEXT | Minimum salary threshold |
+| permanent_residence | TEXT | Years to permanent residency |
+
+---
+
+## 5. API Reference
+
+### Public Endpoints (no token required)
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | /auth/register | Register with invite code, returns JWT |
+| POST | /auth/login | Login, returns JWT |
+| GET | /health | Health check |
+
+### Authenticated Endpoints (Bearer token required)
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /applications | List current user's applications |
+| POST | /applications | Create application |
+| PUT | /applications/{id} | Update application |
+| DELETE | /applications/{id} | Delete application |
+| POST | /applications/parse-image | Upload image, AI extracts fields as JSON |
+| POST | /chat | AI chat (50/day, 30/min per user) |
+| GET | /stats/summary | Total applications & locations |
+| GET | /stats/countries | Top 5 locations |
+| GET | /stats/worktype | Work type distribution |
+
+### Admin Endpoints (Admin token required)
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /admin/users | List all users |
+| DELETE | /admin/users/{id} | Delete user and all their data |
+| PATCH | /admin/users/{id}/toggle-admin | Toggle admin role |
+| PATCH | /admin/users/{id}/reset-password | Reset user password |
+| GET | /admin/invite-codes | List invite codes |
+| POST | /admin/invite-codes | Generate invite code |
+| DELETE | /admin/invite-codes/{id} | Revoke invite code |
+
+---
+
+## 6. Frontend Features
+
+- **Auth Page**: Shown on first visit; registration requires an invite code; JWT stored in localStorage for 30 days
+- **Left Sidebar**: Logo, logged-in email + sign-out, Ask AI button, admin entry (admin only), total applications / locations stats, Work Type donut chart, Top Locations bar chart (top 5)
+- **Main Area**: **Auto-parse** (click button or Ctrl+V paste a screenshot — AI extracts company, position, location, link, etc.), manual add, search (by company/position), sort by date, pagination (10 per page), inline edit, per-record delete
+- **AI Chat Panel**: Multi-turn conversation, built-in example questions, 50 queries/day limit, rejects off-topic questions
+- **Admin Panel**: User management (delete, toggle admin, reset password) + invite code management (generate, copy, revoke)
+
+---
+
+## 7. Security
+
+- JWT authentication (SECRET_KEY in .env, excluded from git)
+- DeepSeek / Anthropic API keys in .env, excluded from git
+- Invite-code gated registration, one use per code
+- SQL safety: SELECT only, mandatory user_id filter, blocked unauthorized tables
+- Chat rate-limited: 50/day and 30/min per user
+- CORS allowlist
+- Global error logging to logs/error.log
+- Automated daily DB backup at 2 AM, retained for 7 days
+
+---
+
+## 8. File Structure
+
+```
+~/jobtrack/
+├── db_api.py          # FastAPI backend
+├── job-agent.html     # Frontend (single-page)
+├── schema.sql         # Database schema
+├── requirements.txt   # Python dependencies
+├── .env.example       # Environment variable template
+├── backup.sh          # Database backup script
+├── import_jobs.py     # Historical data import script
+├── .env               # Secrets (excluded from git)
+├── logs/              # Runtime logs
+└── backups/           # Database backup files
+```
+
+---
+
+## 9. Deployment
+
+### Requirements
+- Python 3.10+
+- PostgreSQL
+
+### Steps
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/valenwei113-design/Job-Track.git
+cd Job-Track
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Configure environment
+cp .env.example .env
+# Edit .env — fill in DEEPSEEK_API_KEY, ANTHROPIC_API_KEY, SECRET_KEY, and DB credentials
+
+# 4. Initialize database
+psql -U postgres -d jobsdb -f schema.sql
+
+# 5. Create log directory
+mkdir -p logs
+
+# 6. Start server
+uvicorn db_api:app --host 0.0.0.0 --port 8000
+```
+
+### Local Development
+
+```bash
+# Start with hot reload
+uvicorn db_api:app --host 0.0.0.0 --port 8000 --reload
+
+# Open frontend directly in browser
 open job-agent.html
 ```
