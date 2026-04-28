@@ -570,8 +570,8 @@ Return ONLY a JSON object with these exact keys (use null for any missing or unc
   "company": "company or organization name",
   "position": "job title or role",
   "applied_date": "date in YYYY-MM-DD format or null",
-  "location": "city, country or region",
-  "link": "URL if visible or null",
+  "location": "country or region only (e.g. Singapore, Netherlands, United States)",
+  "link": "full URL including https:// if any link is visible, otherwise null",
   "work_type": "Remote, Onsite, or Hybrid or null",
   "feedback": "application status if shown (e.g. Interview, Offer, Fail, Online Assessment) or null"
 }
