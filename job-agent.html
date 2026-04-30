@@ -1445,14 +1445,9 @@ const FEEDBACK_KEY = {
 const WORKTYPE_KEY = { Remote: 'optRemote', Onsite: 'optOnsite', Hybrid: 'optHybrid' };
 
 function badgeHtml(feedback) {
-  if (!feedback || feedback === 'No Response') {
-    return `<span class="app-badge badge-pending">${t('fbOptNoResponse')}</span>`;
-  }
-  if (feedback.toLowerCase() === 'fail') {
-    return `<span class="app-badge badge-fail">${t('fbOptFail')}</span>`;
-  }
-  const key = FEEDBACK_KEY[feedback];
-  return `<span class="app-badge badge-offer">${key ? t(key) : esc(feedback)}</span>`;
+  const key = FEEDBACK_KEY[feedback] || (!feedback || feedback === 'No Response' ? 'fbOptNoResponse' : null);
+  const label = key ? t(key) : esc(feedback);
+  return `<span style="font-size:12px;color:#6b7280;">${label}</span>`;
 }
 
 function cardHtml(app, isNew = false) {
