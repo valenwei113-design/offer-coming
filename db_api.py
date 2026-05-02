@@ -3,7 +3,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 import psycopg2
@@ -20,7 +20,12 @@ from openai import OpenAI
 import anthropic
 from typing import List, Optional
 import os
+import io
 from dotenv import load_dotenv
+from docx import Document as DocxDocument
+from docx.shared import Pt, Inches, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from fpdf import FPDF
 
 load_dotenv()
 
@@ -198,6 +203,13 @@ class FeedbackRequest(BaseModel):
 class ChatMessage(BaseModel):
     role: str
     content: str
+
+class AnalyzeRequest(BaseModel):
+    message: str
+
+class ExportRequest(BaseModel):
+    content: str
+    format: str  # "docx" or "pdf"
 
 class ChatRequest(BaseModel):
     message: str = Field(max_length=500)
@@ -682,7 +694,7 @@ def chat(request: Request, req: ChatRequest, user_id: int = Depends(get_current_
         {"role": "user", "content": req.message}
     ]
     sql_resp = client.chat.completions.create(
-        model="deepseek-chat", messages=messages, temperature=0
+        model="deepseek-v4-flash", messages=messages, temperature=0
     )
     raw = sql_resp.choices[0].message.content.strip()
 
@@ -731,10 +743,293 @@ def chat(request: Request, req: ChatRequest, user_id: int = Depends(get_current_
         {"role": "user", "content": user_content}
     ]
     explain_resp = client.chat.completions.create(
-        model="deepseek-chat", messages=explain_messages, temperature=0
+        model="deepseek-v4-flash", messages=explain_messages, temperature=0
     )
     answer = explain_resp.choices[0].message.content.strip()
     return {"answer": answer, "sql": sql_or_reject}
+
+# ── Analyze endpoint (Claude Sonnet) ──
+
+ANALYZE_DAILY_LIMIT = 100
+
+@app.post("/analyze")
+@limiter.limit("10/minute")
+def analyze(request: Request, req: AnalyzeRequest, user_id: int = Depends(get_current_user)):
+    if not DEEPSEEK_API_KEY:
+        raise HTTPException(status_code=501, detail="DEEPSEEK_API_KEY not configured")
+
+    today = datetime.utcnow().date()
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO chat_usage (user_id, date, count) VALUES (%s, %s, 1) "
+            "ON CONFLICT (user_id, date) DO UPDATE SET count = chat_usage.count + 1 "
+            "RETURNING count",
+            (user_id, today)
+        )
+        usage = cur.fetchone()[0]
+        conn.commit()
+    finally:
+        cur.close(); conn.close()
+
+    if usage > ANALYZE_DAILY_LIMIT:
+        raise HTTPException(status_code=429, detail="今日分析次数已达上限，明天再来吧")
+
+    client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
+    response = client.chat.completions.create(
+        model="deepseek-v4-flash",
+        max_tokens=4096,
+        messages=[{"role": "user", "content": req.message}]
+    )
+    return {"answer": response.choices[0].message.content.strip()}
+
+# ── Resume export helpers ──
+
+def _find_cjk_font():
+    """Find an available CJK font on the system."""
+    candidates = [
+        "/System/Library/Fonts/STHeiti Light.ttc",
+        "/System/Library/Fonts/STHeiti Medium.ttc",
+        "/System/Library/Fonts/PingFang.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/google-noto-cjk/NotoSansCJK-Regular.ttc",
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    return None
+
+def _parse_markdown_lines(content: str):
+    """Parse markdown content into structured lines for document generation."""
+    lines = content.strip().split('\n')
+    parsed = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+
+        # Horizontal rule
+        if line.strip() in ('---', '***', '___'):
+            parsed.append(('hr', None))
+            i += 1
+            continue
+
+        # Heading
+        h_match = re.match(r'^(#{1,3})\s+(.+)', line)
+        if h_match:
+            level = len(h_match.group(1))
+            text = h_match.group(2)
+            parsed.append(('heading', (level, text)))
+            i += 1
+            continue
+
+        # Bullet list
+        bullet_match = re.match(r'^(\s*)[-*•]\s+(.+)', line)
+        if bullet_match:
+            items = []
+            while i < len(lines):
+                bm = re.match(r'^(\s*)[-*•]\s+(.+)', lines[i])
+                if bm:
+                    items.append(bm.group(2))
+                    i += 1
+                else:
+                    break
+            parsed.append(('bullet_list', items))
+            continue
+
+        # Numbered list
+        num_match = re.match(r'^(\s*)\d+\.\s+(.+)', line)
+        if num_match:
+            items = []
+            while i < len(lines):
+                nm = re.match(r'^(\s*)\d+\.\s+(.+)', lines[i])
+                if nm:
+                    items.append(nm.group(2))
+                    i += 1
+                else:
+                    break
+            parsed.append(('numbered_list', items))
+            continue
+
+        # Paragraph (skip empty lines, collect consecutive non-markup lines)
+        if line.strip():
+            para_lines = [line]
+            i += 1
+            while i < len(lines) and lines[i].strip() and not re.match(
+                r'^(#{1,3}\s|[-*•]\s|\d+\.\s|---|\*\*\*|___)', lines[i]
+            ):
+                para_lines.append(lines[i])
+                i += 1
+            parsed.append(('paragraph', ' '.join(para_lines)))
+        else:
+            i += 1
+
+    return parsed
+
+def _split_inline_bold(text: str):
+    """Split text into (type, content) segments, tagging bold portions."""
+    pattern = re.compile(r'\*\*(.+?)\*\*')
+    result = []
+    last_end = 0
+    for m in pattern.finditer(text):
+        if m.start() > last_end:
+            result.append(('text', text[last_end:m.start()]))
+        result.append(('bold', m.group(1)))
+        last_end = m.end()
+    if last_end < len(text):
+        result.append(('text', text[last_end:]))
+    return result if result else [('text', text)]
+
+
+# ── Export endpoint ──
+
+@app.post("/export-resume")
+def export_resume(req: ExportRequest, user_id: int = Depends(get_current_user)):
+    content = req.content
+    fmt = req.format.lower()
+
+    if not content or not content.strip():
+        raise HTTPException(status_code=400, detail="Content is empty")
+    if fmt not in ('docx', 'pdf'):
+        raise HTTPException(status_code=400, detail="Format must be 'docx' or 'pdf'")
+
+    parsed = _parse_markdown_lines(content)
+
+    if fmt == 'docx':
+        return _generate_docx(parsed)
+    else:
+        return _generate_pdf(parsed)
+
+
+def _generate_docx(parsed):
+    doc = DocxDocument()
+    style = doc.styles['Normal']
+    style.font.name = 'Calibri'
+    style.font.size = Pt(11)
+
+    for kind, data in parsed:
+        if kind == 'heading':
+            level, text = data
+            h = doc.add_heading(text, level=min(level, 3))
+            for run in h.runs:
+                run.font.color.rgb = RGBColor(0x1a, 0x1a, 0x1a)
+
+        elif kind == 'hr':
+            doc.add_paragraph('─' * 60)
+
+        elif kind == 'paragraph':
+            _add_docx_para(doc, data)
+
+        elif kind == 'bullet_list':
+            for item in data:
+                para = doc.add_paragraph()
+                para.style = doc.styles['List Bullet'] if 'List Bullet' in [s.name for s in doc.styles] else doc.styles['Normal']
+                _add_formatted_runs(para, item)
+
+        elif kind == 'numbered_list':
+            for idx, item in enumerate(data, 1):
+                para = doc.add_paragraph()
+                _add_formatted_runs(para, item, prefix=f'{idx}. ')
+
+    buf = io.BytesIO()
+    doc.save(buf)
+    buf.seek(0)
+    return Response(
+        content=buf.getvalue(),
+        media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        headers={'Content-Disposition': 'attachment; filename="optimized-resume.docx"'}
+    )
+
+
+def _add_docx_para(doc, text: str):
+    para = doc.add_paragraph()
+    _add_formatted_runs(para, text)
+
+
+def _add_formatted_runs(para, text: str, prefix: str = ''):
+    if prefix:
+        para.add_run(prefix)
+    for seg_type, seg_text in _split_inline_bold(text):
+        run = para.add_run(seg_text)
+        if seg_type == 'bold':
+            run.bold = True
+
+
+def _generate_pdf(parsed):
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    cjk_font_path = _find_cjk_font()
+    if cjk_font_path:
+        pdf.add_font('CJK', '', cjk_font_path, uni=True)
+        pdf.add_font('CJK', 'B', cjk_font_path, uni=True)
+        font_name = 'CJK'
+        has_bold = True
+    else:
+        font_name = 'Helvetica'
+        has_bold = False
+
+    for kind, data in parsed:
+        if kind == 'heading':
+            level, text = data
+            sizes = {1: 16, 2: 13, 3: 11.5}
+            pdf.set_font(font_name, 'B' if has_bold else '', sizes.get(level, 13))
+            pdf.ln(3)
+            pdf.multi_cell(0, 7, text)
+            pdf.ln(2)
+
+        elif kind == 'hr':
+            pdf.ln(3)
+            y = pdf.get_y()
+            pdf.set_draw_color(180, 180, 180)
+            pdf.line(10, y, 200, y)
+            pdf.ln(4)
+
+        elif kind == 'paragraph':
+            pdf.set_font(font_name, '', 10.5)
+            pdf.ln(1)
+            _pdf_write_formatted(pdf, data, font_name, has_bold)
+            pdf.ln(2)
+
+        elif kind == 'bullet_list':
+            pdf.set_font(font_name, '', 10.5)
+            for item in data:
+                pdf.cell(6, 6, '•')
+                _pdf_write_formatted(pdf, item, font_name, has_bold)
+                pdf.ln(2)
+            pdf.ln(1)
+
+        elif kind == 'numbered_list':
+            pdf.set_font(font_name, '', 10.5)
+            for idx, item in enumerate(data, 1):
+                pdf.cell(8, 6, f'{idx}.')
+                _pdf_write_formatted(pdf, item, font_name, has_bold)
+                pdf.ln(2)
+            pdf.ln(1)
+
+    buf = io.BytesIO()
+    pdf.output(buf)
+    buf.seek(0)
+    return Response(
+        content=buf.getvalue(),
+        media_type='application/pdf',
+        headers={'Content-Disposition': 'attachment; filename="optimized-resume.pdf"'}
+    )
+
+
+def _pdf_write_formatted(pdf, text: str, font_name: str, has_bold: bool):
+    """Write text with inline bold to PDF using write() for proper inline flow."""
+    segments = _split_inline_bold(text)
+    for seg_type, seg_text in segments:
+        if seg_type == 'bold' and has_bold:
+            pdf.set_font(font_name, 'B', 10.5)
+        else:
+            pdf.set_font(font_name, '', 10.5)
+        pdf.write(6, seg_text)
+    pdf.ln()
 
 # ── Public endpoints ──
 

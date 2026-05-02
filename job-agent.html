@@ -485,6 +485,14 @@
       transition: background 0.15s;
     }
     .jd-sm-btn:hover { background: #eeeae2; }
+    .jd-clear-text-btn {
+      position: absolute; bottom: 8px; right: 8px;
+      font-size: 11px; color: #b0a99c; background: transparent;
+      border: none; cursor: pointer; padding: 2px 4px;
+      border-radius: 3px; transition: color 0.15s;
+      line-height: 1;
+    }
+    .jd-clear-text-btn:hover { color: #555048; }
     .jd-analyze-btn {
       padding: 10px 20px; background: #0d0d0d;
       color: #fff; border: none; border-radius: 8px;
@@ -514,33 +522,65 @@
       color: #888070; font-size: 13px; padding: 24px 0;
     }
 
-    /* ── Status bar ── */
-    .jd-status-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 24px; background: #eeeae2; border-bottom: 1px solid #dcd8d0;
-      flex-shrink: 0;
-    }
-    .jd-status-items { display: flex; gap: 16px; }
-    .jd-status-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #555048; }
-    .jd-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
-
     /* ── Score card ── */
     .jd-result-header { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
     .jd-score-circle {
-      width: 90px; height: 90px; border-radius: 50%; border: 5px solid;
+      width: 80px; height: 80px; border-radius: 50%; border: 4px solid;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .jd-score-num { font-size: 30px; font-weight: 800; line-height: 1; }
-    .jd-score-sub { font-size: 11px; color: #888070; margin-top: 2px; }
-    .jd-summary-text { font-size: 13px; color: #1a1610; line-height: 1.75; }
-    .jd-skills-row { margin-bottom: 16px; }
+    .jd-score-num { font-size: 28px; font-weight: 800; line-height: 1; }
+    .jd-score-sub { font-size: 10px; color: #888070; margin-top: 2px; }
+    .jd-summary-text { font-size: 13px; color: #3a3528; line-height: 1.8; margin: 0; }
     .jd-skills-title {
-      font-size: 11px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.5px; color: #555048; margin-bottom: 8px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.6px; margin-bottom: 10px;
     }
-    .jd-tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
-    .jd-divider { height: 1px; background: #dcd8d0; margin: 20px 0; }
+    .jd-divider { height: 1px; background: #eeeae2; margin: 18px 0; }
+    .match-tag {
+      display: inline-block; border-radius: 5px; padding: 4px 10px;
+      font-size: 12px; font-weight: 500; margin: 3px 4px 3px 0; line-height: 1.4;
+    }
+    .match-tag-hit { background: #d1fae5; color: #065f46; }
+    .match-tag-gap { background: #fee2e2; color: #991b1b; }
+
+    /* ── Resume document preview ── */
+    .resume-doc {
+      background: #fff; border-radius: 4px; max-width: 680px; margin: 0 auto;
+      padding: 52px 60px; font-size: 13.5px; line-height: 1.8; color: #1a1a1a;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 6px rgba(0,0,0,0.06);
+    }
+    .resume-doc h1 { font-size: 22px; font-weight: 700; text-align: center; margin: 0 0 4px; letter-spacing: 0.2px; }
+    .resume-doc h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; border-bottom: 1.5px solid #1a1a1a; padding-bottom: 4px; margin: 24px 0 10px; }
+    .resume-doc h3 { font-size: 13.5px; font-weight: 600; margin: 14px 0 2px; }
+    .resume-doc p { margin: 4px 0; }
+    .resume-doc ul { padding-left: 18px; margin: 4px 0 8px; }
+    .resume-doc li { margin: 3px 0; }
+    .resume-doc strong { font-weight: 600; color: #000; }
+    .resume-doc hr { border: none; border-top: 1px solid #e8e4de; margin: 16px 0; }
+    .doc-loading { display:flex;align-items:center;gap:10px;color:#888070;font-size:13px;padding:60px 0;justify-content:center; }
+
+    /* ── Right panel tabs ── */
+    .jd-right-tab { padding:10px 18px; font-size:13px; color:#888070; border:none; border-bottom:2px solid transparent; background:none; cursor:pointer; font-family:inherit; white-space:nowrap; transition:color 0.15s; }
+    .jd-right-tab.active { color:#1a1610; border-bottom-color:#3d3530; font-weight:600; }
+    .jd-right-tab:hover:not(.active) { color:#555048; }
+
+    /* ── Resume AI Chat ── */
+    #jdChatPanel { flex-shrink:0; display:flex; flex-direction:column; max-height:320px; }
+    #jdChatHistory { overflow-y:auto; flex:0 1 auto; padding:0 14px; display:flex; flex-direction:column; gap:6px; scroll-behavior:smooth; min-height:0; max-height:240px; transition:max-height 0.25s ease, padding 0.25s ease, opacity 0.2s ease; }
+    #jdChatHistory:not(:empty) { padding:10px 14px; }
+    #jdChatHistory.collapsed { max-height:0 !important; padding:0 !important; opacity:0; }
+    .chat-msg { max-width:82%; padding:7px 12px; border-radius:12px; font-size:12.5px; line-height:1.6; word-break:break-word; }
+    .chat-msg-user { align-self:flex-end; background:#3d3530; color:#f5f0ea; border-radius:12px 12px 2px 12px; }
+    .chat-msg-ai { align-self:flex-start; background:#fff; color:#3d3530; border-radius:12px 12px 12px 2px; box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+    .chat-msg-ai.typing { color:#a09080; font-style:italic; }
+    #jdChatInputRow { padding:16px 14px; display:flex; gap:8px; align-items:center; }
+    #jdChatInput { flex:1; resize:none; border:1px solid #dcd8d0; border-radius:8px; padding:8px 11px; font-size:13px; font-family:inherit; color:#2a2420; background:#fff; outline:none; line-height:1.5; max-height:100px; overflow-y:auto; }
+    #jdChatInput:focus { border-color:#a09080; }
+    #jdChatInput::placeholder { color:#b0a898; }
+    #jdChatSendBtn { flex-shrink:0; padding:8px 14px; background:#3d3530; color:#f5f0ea; border:none; border-radius:8px; font-size:12.5px; cursor:pointer; white-space:nowrap; }
+    #jdChatSendBtn:hover { background:#2a2420; }
+    #jdChatSendBtn:disabled { background:#c0b8b0; cursor:not-allowed; }
 
     /* ── Markdown result ── */
     .md-result { font-size:13px; color:#1a1610; line-height:1.8; }
@@ -815,6 +855,35 @@
     .export-item:hover { background: #f8f6f2; }
 
     @media (max-width: 768px) { .sidebar { display: none; } }
+
+    /* ── Home tab ── */
+    .sidebar-tab[data-tab="home"]:hover,
+    .sidebar-tab[data-tab="home"].active { border-left-color: #b7791f; }
+
+    .home-stat-card {
+      background: #faf8f4; border: 1px solid #dcd8d0;
+      border-left: 4px solid #dcd8d0;
+      border-radius: 8px; padding: 14px 16px;
+    }
+    .home-stat-value { font-size: 28px; font-weight: 700; color: #0d0d0d; line-height: 1; }
+    .home-stat-label { font-size: 10px; color: #888070; margin-top: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .home-recent-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; background: #faf8f4; border: 1px solid #dcd8d0;
+      border-left: 4px solid #dcd8d0; border-radius: 6px;
+      cursor: pointer; transition: background 0.15s;
+      margin-bottom: 8px;
+    }
+    .home-recent-row:hover { background: #eeeae4; }
+    .home-recent-row[data-feedback="Offer"]             { border-left-color: #2a7a4a; }
+    .home-recent-row[data-feedback="Interview"]         { border-left-color: #2a5a9a; }
+    .home-recent-row[data-feedback="Online Assessment"] { border-left-color: #8a6010; }
+    .home-recent-row[data-feedback="Fail"]              { border-left-color: #c0392b; }
+    .home-recent-company { font-size: 13px; font-weight: 600; color: #0d0d0d; }
+    .home-recent-position { font-size: 12px; color: #555048; margin-top: 2px; }
+    .home-recent-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .home-recent-date { font-size: 11px; color: #888070; }
   </style>
 </head>
 <body>
@@ -886,10 +955,13 @@
       <div class="divider"></div>
 
       <nav class="sidebar-nav">
+        <button class="sidebar-tab active" data-tab="home" onclick="switchMainTab('home')">
+          <span class="sidebar-tab-icon">宅</span><span data-i18n="tabHomeShort"></span>
+        </button>
         <button class="sidebar-tab" data-tab="jdmatch" onclick="switchMainTab('jdmatch')">
           <span class="sidebar-tab-icon">文</span><span data-i18n="tabJdMatchShort"></span>
         </button>
-        <button class="sidebar-tab active" data-tab="tracker" onclick="switchMainTab('tracker')">
+        <button class="sidebar-tab" data-tab="tracker" onclick="switchMainTab('tracker')">
           <span class="sidebar-tab-icon">录</span><span data-i18n="tabTrackerShort"></span>
         </button>
         <button class="sidebar-tab" data-tab="fate" onclick="switchMainTab('fate')">
@@ -902,8 +974,41 @@
     <!-- Main -->
     <main class="main">
 
+      <!-- Tab: Home -->
+      <div id="tab-home" class="main-tab-content active" style="flex-direction:column;overflow-y:auto;">
+        <div style="padding:32px 36px 20px;flex-shrink:0;max-width:860px;width:100%;">
+
+          <!-- Welcome header -->
+          <div style="margin-bottom:28px;">
+            <div style="font-size:13px;font-weight:600;color:#b7791f;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;" id="homeDate"></div>
+            <div style="font-size:24px;font-weight:700;color:#0d0d0d;line-height:1.2;" id="homeWelcome" data-i18n="homeWelcomeDefault"></div>
+          </div>
+
+          <!-- Stats grid -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
+            <div class="home-stat-card" style="border-left-color:#0d0d0d;">
+              <div class="home-stat-value" id="homeStat-total">—</div>
+              <div class="home-stat-label" data-i18n="homeStatTotal"></div>
+            </div>
+            <div class="home-stat-card" style="border-left-color:#2a7a4a;">
+              <div class="home-stat-value" id="homeStat-offer" style="color:#2a7a4a;">—</div>
+              <div class="home-stat-label" data-i18n="homeStatOffer"></div>
+            </div>
+            <div class="home-stat-card" style="border-left-color:#2a5a9a;">
+              <div class="home-stat-value" id="homeStat-interview" style="color:#2a5a9a;">—</div>
+              <div class="home-stat-label" data-i18n="homeStatInterview"></div>
+            </div>
+            <div class="home-stat-card" style="border-left-color:#888070;">
+              <div class="home-stat-value" id="homeStat-pending" style="color:#888070;">—</div>
+              <div class="home-stat-label" data-i18n="homeStatPending"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <!-- Tab: Applications tracker -->
-      <div id="tab-tracker" class="main-tab-content active" style="flex-direction:column;">
+      <div id="tab-tracker" class="main-tab-content" style="flex-direction:column;">
         <div style="padding:14px 24px 0;flex-shrink:0;display:flex;gap:10px;align-items:center;">
           <button class="ask-ai-btn" onclick="triggerAutoParseModal()" data-i18n="autoParseBtn"></button>
           <button class="ask-ai-btn" onclick="openModal()" id="addAppBtn" data-i18n="addBtn"></button>
@@ -941,61 +1046,94 @@
       </div>
 
       <!-- Tab: JD Match -->
-      <div id="tab-jdmatch" class="main-tab-content" style="flex-direction:column;">
+      <div id="tab-jdmatch" class="main-tab-content" style="flex-direction:row;overflow:hidden;">
 
-        <!-- Inputs (collapsible) -->
-        <div id="jdInputPanel" style="display:flex;gap:20px;padding:20px 24px 12px;min-width:0;">
+        <!-- Left: Inputs -->
+        <div id="jdLeftPanel" style="width:340px;flex-shrink:0;display:flex;flex-direction:column;border-right:1px solid #dcd8d0;min-height:0;">
 
-          <!-- Left: resume -->
-          <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
-            <div class="jd-col-label" data-i18n="jdLabelResume"></div>
-            <div class="jd-save-row" style="flex-shrink:0;">
-              <button class="jd-sm-btn" onclick="document.getElementById('jdResumeFile').click()" data-i18n="resumeUploadBtn"></button>
-              <button class="jd-sm-btn" onclick="clearResume()" data-i18n="jdClearResumeBtn"></button>
-              <input type="file" id="jdResumeFile" accept=".pdf,.txt,.md" style="display:none" onchange="handleResumeUpload(this)">
-              <span id="jdResumeFileName" style="font-size:11px;color:#888070;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+          <!-- Resume -->
+          <div style="padding:20px 20px 12px;flex-shrink:0;">
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <div class="jd-col-label" data-i18n="jdLabelResume"></div>
+              <span style="font-size:11px;color:#b0a898;">PDF · TXT · MD</span>
             </div>
-            <textarea class="jd-textarea" id="jdResume" rows="14" style="resize:vertical;" data-i18n-placeholder="jdResumePlaceholder" oninput="autoSaveResume()"></textarea>
+            <div class="jd-save-row" style="margin-top:6px;">
+              <button class="jd-sm-btn" onclick="document.getElementById('jdResumeFile').click()" data-i18n="resumeUploadBtn"></button>
+              <input type="file" id="jdResumeFile" accept=".pdf,.txt,.md" style="display:none" onchange="handleResumeUpload(this)">
+              <span id="jdResumeFileName" style="font-size:11px;color:#888070;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></span>
+              <button class="jd-sm-btn" onclick="clearResume()" data-i18n="jdClearResumeBtn"></button>
+            </div>
           </div>
 
-          <!-- Right: JD -->
-          <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
-            <div class="jd-col-label" data-i18n="jdLabelJD"></div>
-            <div class="jd-save-row" style="flex-shrink:0;">
+          <!-- JD -->
+          <div style="flex:1;display:flex;flex-direction:column;padding:0 20px 20px;min-height:0;">
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <div class="jd-col-label" data-i18n="jdLabelJD"></div>
+              <span style="font-size:11px;color:#b0a898;">PDF · TXT · MD</span>
+            </div>
+            <div class="jd-save-row" style="margin-top:6px;">
               <button class="jd-sm-btn" onclick="document.getElementById('jdJDFile').click()" data-i18n="resumeUploadBtn"></button>
               <input type="file" id="jdJDFile" accept=".pdf,.txt,.md" style="display:none" onchange="handleJDUpload(this)">
-              <span id="jdJDFileName" style="font-size:11px;color:#888070;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+              <span id="jdJDFileName" style="font-size:11px;color:#888070;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></span>
               <button class="jd-sm-btn" onclick="clearJD()" data-i18n="jdClearResumeBtn"></button>
             </div>
-            <textarea class="jd-textarea" id="jdJD" rows="14" style="resize:vertical;" data-i18n-placeholder="jdJDPlaceholder" oninput="autoSaveJD()"></textarea>
+            <div style="flex:1;position:relative;margin-top:6px;min-height:0;display:flex;flex-direction:column;">
+              <textarea class="jd-textarea" id="jdJD" style="flex:1;resize:none;min-height:0;padding-bottom:28px;" data-i18n-placeholder="jdJDPlaceholder" oninput="autoSaveJD()"></textarea>
+              <button class="jd-clear-text-btn" onclick="clearJDText()">清空</button>
+            </div>
           </div>
 
         </div>
 
-        <!-- Analyze button -->
-        <div id="jdAnalyzeBtnWrap" style="padding:0 24px 16px;flex-shrink:0;">
-          <button class="jd-analyze-btn" id="jdAnalyzeBtn" onclick="analyzeMatch()" data-i18n="jdAnalyzeBtn" style="width:100%;"></button>
-        </div>
+        <!-- Right: Results -->
+        <div id="jdRightPanel" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;">
 
-        <!-- Status bar (visible when inputs collapsed) -->
-        <div id="jdStatusBar" class="jd-status-bar" style="display:none;">
-          <div class="jd-status-items">
-            <div class="jd-status-item"><span class="jd-status-dot"></span><span data-i18n="jdStatusResume"></span></div>
-            <div class="jd-status-item"><span class="jd-status-dot"></span><span data-i18n="jdStatusJD"></span></div>
+          <!-- Right panel tab bar -->
+          <div style="flex-shrink:0;display:flex;align-items:stretch;border-bottom:1px solid #eeeae2;background:#fff;">
+            <button id="jdTabBtnAnalyze" class="jd-right-tab active" onclick="switchRightTab('analyze')" data-i18n="jdTabAnalyze">匹配分析</button>
+            <button id="jdTabBtnOptimize" class="jd-right-tab" onclick="switchRightTab('optimize')" data-i18n="jdTabOptimize">优化简历</button>
+            <div style="flex:1;"></div>
           </div>
-          <button class="jd-sm-btn" onclick="toggleJdInput()" id="jdToggleBtn" data-i18n="jdExpandInputs"></button>
-        </div>
 
-        <!-- Result -->
-        <div id="jdResultSection" style="display:none;padding:20px 24px 32px;flex:1;overflow-y:auto;">
-          <div id="jdResultBox"></div>
-
-          <!-- Resume optimization (appears after match analysis) -->
-          <div id="jdOptWrap" style="display:none;margin-top:8px;">
-            <div style="border-top:2px solid #dcd8d0;margin:28px 0 20px;"></div>
-            <button class="jd-analyze-btn" id="jdOptBtn" onclick="optimizeResume()" data-i18n="resumeOptBtn" style="width:100%;margin-bottom:20px;"></button>
-            <div id="jdOptResultBox" class="md-result"></div>
+          <!-- AI Chat panel (shown in optimize tab after generation) -->
+          <div id="jdChatPanel" style="display:none;">
+            <div id="jdChatHistory"></div>
+            <div id="jdChatInputRow">
+              <textarea id="jdChatInput" rows="1" data-i18n-placeholder="resumeChatPlaceholder" placeholder="告诉 AI 如何调整简历…" onkeydown="handleResumeChatKey(event)" oninput="autoResizeChatInput(this)"></textarea>
+              <button id="jdChatSendBtn" onclick="sendResumeChat()" data-i18n="resumeChatGenerate">更新</button>
+            </div>
           </div>
+
+          <!-- Scrollable content area -->
+          <div id="jdScrollArea" style="flex:1;overflow-y:auto;min-height:0;">
+            <!-- Analyze tab content -->
+            <div id="jdEmptyHintBox" style="display:flex;align-items:center;justify-content:center;color:#b0a99c;font-size:13px;text-align:center;padding:60px 40px;min-height:200px;" data-i18n="jdEmptyHint"></div>
+            <div id="jdResultSection" style="display:none;padding:20px 24px 32px;">
+              <div id="jdResultBox"></div>
+            </div>
+            <!-- Optimize tab content -->
+            <div id="jdOptEmptyHintBox" style="display:none;align-items:center;justify-content:center;color:#b0a99c;font-size:13px;text-align:center;padding:60px 40px;min-height:200px;" data-i18n="jdOptEmptyHint"></div>
+            <div id="jdResumeArea" style="display:none;background:#ede9e3;padding:0;min-height:100%;">
+              <div id="jdOptResultBox"></div>
+            </div>
+          </div>
+
+          <!-- Bottom footer -->
+          <div style="flex-shrink:0;">
+            <div id="jdAnalyzeFooter" style="padding:16px 20px;">
+              <button class="jd-analyze-btn" id="jdAnalyzeBtn" onclick="analyzeMatch()" data-i18n="jdAnalyzeBtn" style="width:100%;"></button>
+            </div>
+            <div id="jdOptFooter" style="display:none;padding:16px 20px;">
+              <button class="jd-analyze-btn" id="jdOptBtn" onclick="optimizeResume()" data-i18n="resumeOptBtn" style="width:100%;"></button>
+            </div>
+            <div id="jdDlWrap" style="display:none;padding:12px 20px;gap:10px;flex-wrap:wrap;">
+              <button class="jd-sm-btn" onclick="downloadResumeDocx()" style="background:#2b5a2b;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;">📄 Word (.docx)</button>
+              <button class="jd-sm-btn" onclick="downloadResumePdf()" style="background:#8b0000;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;">📑 PDF (.pdf)</button>
+              <button class="jd-sm-btn" onclick="downloadResumeMd()" style="background:#5a4a8b;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;">📝 Markdown (.md)</button>
+              <button class="jd-sm-btn" onclick="downloadResumeTxt()" style="background:#555048;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;">📃 Text (.txt)</button>
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -1280,6 +1418,7 @@
   </div>
 
 <script>
+window._resumeText = '';
 const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:8000'
   : `${window.location.protocol}//${window.location.hostname}:8000`;
@@ -1467,33 +1606,48 @@ const LANGS = {
     tabTrackerShort:       '投递记录',
     tabJdMatchShort:       '简历优化',
     tabResumeShort:        '简历优化',
-    resumeOptBtn:          '开始优化简历',
+    resumeOptBtn:          '优化简历',
+    resumeRegenBtn:        '重新生成',
+    jdAnalysisBack:        '分析报告',
     resumeOptResultLabel:  '优化建议',
     resumeOptEmptyHint:    '粘贴简历，点击"开始优化"获取专业建议',
     jdLabelResume:         '我的简历',
     jdResumePlaceholder:   '粘贴你的简历内容（工作经历、技能、教育背景等）...',
     jdResumeSavedOk:       '✓ 已保存到本地',
     jdSaveResumeBtn:       '保存简历',
-    jdClearResumeBtn:      '清空',
+    jdClearResumeBtn:      '删除',
     resumeUploadBtn:       '上传文件',
+    resumeUploadHint:      '点击上方「上传文件」按钮上传简历（支持 PDF / TXT / MD 格式）',
     resumeUploading:       '解析中...',
     resumeUploadErr:       '解析失败，请手动粘贴',
     jdLabelJD:             '职位描述',
     jdJDPlaceholder:       '粘贴招聘 JD 内容...',
     jdAnalyzeBtn:          '开始分析',
     jdAnalyzing:           '分析中...',
+    resumeGenerating:      '生成中...',
     jdLabelResult:         '分析结果',
     jdCopyResult:          '复制结果',
     jdCopied:              '已复制',
-    jdEmptyHint:           '粘贴简历和 JD，点击"开始分析"查看匹配报告',
+    jdTabAnalyze:          '匹配分析',
+    jdTabOptimize:         '优化简历',
+    jdEmptyHint:           '上传简历和 JD，点击「开始分析」查看匹配报告',
+    jdOptEmptyHint:        '上传简历和 JD，点击「优化简历」生成针对性简历',
     jdRequired:            '请填写简历和职位描述',
+    resumeRequired:        '请先上传简历',
     jdAnalyzeFailed:       '分析失败，请重试',
+    resumeChatPlaceholder: '告诉 AI 如何调整简历…',
+    resumeChatGenerate:    '更新',
+    resumeChatThinking:    '修改中…',
+    resumeChatDone:        '已根据您的要求更新简历',
+    resumeChatFailed:      '修改失败，请重试',
     jdExpandInputs:        '编辑输入',
     jdCollapseInputs:      '收起',
     jdStatusResume:        '简历已填入',
     jdStatusJD:            '职位已填入',
-    jdSkillsMatched:       '匹配的部分',
+    jdSkillsMatched:       '能力匹配',
     jdSkillsMissing:       '明显缺口',
+    jdAtsKeywords:         'ATS 关键词命中',
+    jdAtsHit:              '命中',
     jdScoreLabel:          '匹配度',
     jdConclusion:          '结论',
     jdColJD:               'JD要求',
@@ -1508,6 +1662,19 @@ const LANGS = {
     fateNoApps:            '暂无申请记录',
     fateSelectFirst:       '请先选择一条申请记录',
     fateEmptyHint:         '选择一条申请记录，开始占卜',
+
+    tabHomeShort:          '主页',
+    homeWelcomeDefault:    '欢迎回来',
+    homeStatTotal:         '投递总数',
+    homeStatOffer:         '录用',
+    homeStatInterview:     '面试中',
+    homeStatPending:       '待回复',
+    homeRecentTitle:       '最近投递',
+    homeRecentEmpty:       '暂无投递记录，快去添加吧',
+    homeQuickAdd:          '+ 新增投递',
+    homeQuickParse:        '图片识别',
+    homeQuickMatch:        '简历优化',
+    homeQuickAI:           '问 AI',
   },
   en: {
     authTitleLogin:        'Sign In',
@@ -1689,33 +1856,48 @@ const LANGS = {
     tabTrackerShort:       'Applications',
     tabJdMatchShort:       'Resume',
     tabResumeShort:        'Resume Polish',
-    resumeOptBtn:          'Polish Resume',
+    resumeOptBtn:          'Polish',
+    resumeRegenBtn:        'Regenerate',
+    jdAnalysisBack:        'Analysis',
     resumeOptResultLabel:  'Suggestions',
     resumeOptEmptyHint:    'Paste your resume and click "Polish Resume"',
     jdLabelResume:         'My Resume',
     jdResumePlaceholder:   'Paste your resume here (work experience, skills, education, etc.)...',
     jdResumeSavedOk:       '✓ Saved locally',
     jdSaveResumeBtn:       'Save Resume',
-    jdClearResumeBtn:      'Clear',
+    jdClearResumeBtn:      'Delete',
     resumeUploadBtn:       'Upload',
+    resumeUploadHint:      'Click "Upload" above to upload your resume (PDF / TXT / MD supported)',
     resumeUploading:       'Parsing...',
     resumeUploadErr:       'Parse failed, please paste manually',
     jdLabelJD:             'Job Description',
     jdJDPlaceholder:       'Paste the job description here...',
     jdAnalyzeBtn:          'Analyze',
     jdAnalyzing:           'Analyzing...',
+    resumeGenerating:      'Generating...',
     jdLabelResult:         'Analysis Result',
     jdCopyResult:          'Copy Result',
     jdCopied:              'Copied',
-    jdEmptyHint:           'Paste your resume and JD, then click "Analyze Match"',
+    jdTabAnalyze:          'Match',
+    jdTabOptimize:         'Optimize',
+    jdEmptyHint:           'Upload your resume and JD, then click "Analyze" to see the match report',
+    jdOptEmptyHint:        'Upload your resume and JD, then click "Optimize" to generate a tailored resume',
     jdRequired:            'Please fill in both resume and job description',
+    resumeRequired:        'Please upload your resume first',
     jdAnalyzeFailed:       'Analysis failed. Please try again',
+    resumeChatPlaceholder: 'Tell AI how to adjust the resume…',
+    resumeChatGenerate:    'Generate',
+    resumeChatThinking:    'Updating…',
+    resumeChatDone:        'Resume updated as requested',
+    resumeChatFailed:      'Update failed, please retry',
     jdExpandInputs:        'Edit inputs',
     jdCollapseInputs:      'Collapse',
     jdStatusResume:        'Resume filled',
     jdStatusJD:            'JD filled',
     jdSkillsMatched:       'Matched',
     jdSkillsMissing:       'Clear gaps',
+    jdAtsKeywords:         'ATS Keywords',
+    jdAtsHit:              'matched',
     jdScoreLabel:          'Match score',
     jdConclusion:          'Verdict',
     jdColJD:               'JD Requirement',
@@ -1730,6 +1912,19 @@ const LANGS = {
     fateNoApps:            'No applications yet',
     fateSelectFirst:       'Please select an application first',
     fateEmptyHint:         'Select an application to begin your reading',
+
+    tabHomeShort:          'Home',
+    homeWelcomeDefault:    'Welcome back',
+    homeStatTotal:         'Applied',
+    homeStatOffer:         'Offers',
+    homeStatInterview:     'Interviews',
+    homeStatPending:       'Pending',
+    homeRecentTitle:       'Recent Applications',
+    homeRecentEmpty:       'No applications yet — start tracking today',
+    homeQuickAdd:          '+ Add Application',
+    homeQuickParse:        'Auto-fill from Image',
+    homeQuickMatch:        'Resume Match',
+    homeQuickAI:           'Ask AI',
   }
 };
 
@@ -1767,6 +1962,7 @@ function toggleLang() {
   applyLang();
   // re-render dynamic content that depends on language
   if (allApps.length) renderPage();
+  if (allApps.length) renderHome();
 }
 
 function renderChatSuggestions() {
@@ -1821,6 +2017,9 @@ function showApp() {
     const email = getEmail() || '—';
     document.getElementById('userEmail').textContent = email;
     document.getElementById('userAvatar').textContent = email[0].toUpperCase();
+    // Set welcome greeting immediately (stats fill in after data loads)
+    const name = email.includes('@') ? email.split('@')[0] : email;
+    document.getElementById('homeWelcome').textContent = t('homeWelcomeDefault') + '，' + name;
     loadAll();
     loadSavedResume();
   }
@@ -1964,11 +2163,29 @@ let sortOrder = 'desc';
 let currentPage = 1;
 const PAGE_SIZE = 30;
 
+function extractJSON(text) {
+  // Strip markdown code fences
+  let t = text.trim()
+    .replace(/^```(?:json)?\s*\n?/i, '')
+    .replace(/\n?```\s*$/i, '')
+    .trim();
+  // Try direct parse first
+  try { return JSON.parse(t); } catch {}
+  // Find first { ... } pair (brace-balanced)
+  let depth = 0, start = -1;
+  for (let i = 0; i < t.length; i++) {
+    if (t[i] === '{') { if (depth === 0) start = i; depth++; }
+    else if (t[i] === '}') { depth--; if (depth === 0 && start >= 0) { try { return JSON.parse(t.slice(start, i + 1)); } catch { start = -1; } } }
+  }
+  return null;
+}
+
 async function loadApplications() {
   const res = await apiFetch('/applications');
   if (!res) return;
   allApps = await res.json();
   filterApplications();
+  renderHome();
 }
 
 function toggleExportMenu(e) {
@@ -1979,6 +2196,16 @@ function closeExportMenu() {
   document.getElementById('exportMenu').classList.remove('open');
 }
 document.addEventListener('click', closeExportMenu);
+
+document.getElementById('jdScrollArea').addEventListener('scroll', function() {
+  const history = document.getElementById('jdChatHistory');
+  if (!history.children.length) return;
+  if (this.scrollTop > 10) history.classList.add('collapsed');
+});
+
+document.getElementById('jdChatInput').addEventListener('focus', function() {
+  document.getElementById('jdChatHistory').classList.remove('collapsed');
+});
 
 function downloadCSV() {
   if (!allApps.length) return;
@@ -2173,6 +2400,33 @@ async function loadCountriesChart() {
 
 function loadAll() {
   loadApplications();
+}
+
+function renderHome() {
+  const total     = allApps.length;
+  const offers    = allApps.filter(a => a.feedback === 'Offer').length;
+  const interviews= allApps.filter(a => a.feedback === 'Interview').length;
+  const pending   = allApps.filter(a => !a.feedback || a.feedback === 'No Response').length;
+
+  const elTotal = document.getElementById('homeStat-total');
+  const elOffer = document.getElementById('homeStat-offer');
+  const elInter = document.getElementById('homeStat-interview');
+  const elPend  = document.getElementById('homeStat-pending');
+  if (elTotal) elTotal.textContent = total;
+  if (elOffer) elOffer.textContent = offers;
+  if (elInter) elInter.textContent = interviews;
+  if (elPend)  elPend.textContent  = pending;
+
+  // Date line
+  const dateEl = document.getElementById('homeDate');
+  if (dateEl) {
+    const now = new Date();
+    dateEl.textContent = now.toLocaleDateString(
+      currentLang === 'zh' ? 'zh-CN' : 'en-US',
+      { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+    );
+  }
+
 }
 
 function toggleChat() {
@@ -2621,7 +2875,17 @@ function switchMainTab(name) {
   document.querySelectorAll('.sidebar-tab').forEach(el => el.classList.remove('active'));
   document.querySelector(`.sidebar-tab[data-tab="${name}"]`).classList.add('active');
 
-  if (name === 'jdmatch') loadSavedResume();
+  if (name === 'home') renderHome();
+  if (name === 'jdmatch') {
+    loadSavedResume();
+    if (_jdAnalyzing) {
+      _jdActiveTab = 'analyze';
+      document.getElementById('jdTabBtnAnalyze').classList.add('active');
+      document.getElementById('jdTabBtnOptimize').classList.remove('active');
+      document.getElementById('jdEmptyHintBox').style.display  = 'none';
+      document.getElementById('jdResultSection').style.display = 'block';
+    }
+  }
   if (name === 'fate') populateFateSelect();
 
   if (current) {
@@ -2637,36 +2901,281 @@ function switchMainTab(name) {
   }
 }
 
-async function optimizeResume() {
-  const resume = document.getElementById('jdResume').value.trim();
-  const jd     = document.getElementById('jdJD').value.trim();
-  if (!resume) { alert(t('jdRequired')); return; }
+let _jdActiveTab = 'analyze';
+let _jdOptimizing = false;
+let _jdAnalyzing  = false;
 
-  const btn = document.getElementById('jdOptBtn');
-  btn.disabled = true;
-  btn.textContent = t('jdAnalyzing');
+function switchRightTab(tab) {
+  _jdActiveTab = tab;
+  const isAnalyze = tab === 'analyze';
 
-  const resultBox = document.getElementById('jdOptResultBox');
-  resultBox.innerHTML = `<div class="jd-loading"><span class="jd-spinner"></span>${t('jdAnalyzing')}</div>`;
+  document.getElementById('jdTabBtnAnalyze').classList.toggle('active', isAnalyze);
+  document.getElementById('jdTabBtnOptimize').classList.toggle('active', !isAnalyze);
+
+  const hasResume = !!window._lastOptimizedResume;
+
+  if (isAnalyze) {
+    const hasAnalysis = document.getElementById('jdResultSection').dataset.loaded === '1';
+    const showResult  = hasAnalysis || _jdAnalyzing;
+    document.getElementById('jdEmptyHintBox').style.display    = showResult ? 'none'  : 'flex';
+    document.getElementById('jdResultSection').style.display   = showResult ? 'block' : 'none';
+    document.getElementById('jdOptEmptyHintBox').style.display = 'none';
+    document.getElementById('jdResumeArea').style.display      = 'none';
+    document.getElementById('jdChatPanel').style.display       = 'none';
+    document.getElementById('jdAnalyzeFooter').style.display   = 'block';
+    document.getElementById('jdOptFooter').style.display       = 'none';
+    document.getElementById('jdDlWrap').style.display          = 'none';
+  } else {
+    const showArea = hasResume || _jdOptimizing;
+    document.getElementById('jdEmptyHintBox').style.display    = 'none';
+    document.getElementById('jdResultSection').style.display   = 'none';
+    document.getElementById('jdOptEmptyHintBox').style.display = showArea   ? 'none'  : 'flex';
+    document.getElementById('jdResumeArea').style.display      = showArea   ? 'block' : 'none';
+    document.getElementById('jdChatPanel').style.display       = hasResume  ? 'flex' : 'none';
+    document.getElementById('jdAnalyzeFooter').style.display   = 'none';
+    document.getElementById('jdOptFooter').style.display       = showArea   ? 'none'  : 'block';
+    document.getElementById('jdDlWrap').style.display          = hasResume  ? 'flex'  : 'none';
+  }
+}
+
+function showAnalysis() {
+  switchRightTab('analyze');
+}
+
+function renderResumeDoc(text) {
+  const lines = text.split('\n');
+  let html = '';
+  let inUl = false;
+
+  const escInline = s => s
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    if (!line.trim()) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      continue;
+    }
+    if (/^# (.+)/.test(line)) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      html += `<h1>${escInline(line.slice(2))}</h1>`;
+    } else if (/^## (.+)/.test(line)) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      html += `<h2>${escInline(line.slice(3))}</h2>`;
+    } else if (/^### (.+)/.test(line)) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      html += `<h3>${escInline(line.slice(4))}</h3>`;
+    } else if (/^[-*•] (.+)/.test(line)) {
+      if (!inUl) { html += '<ul>'; inUl = true; }
+      html += `<li>${escInline(line.replace(/^[-*•] /,''))}</li>`;
+    } else if (/^---+$/.test(line.trim())) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      html += '<hr>';
+    } else {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      html += `<p>${escInline(line)}</p>`;
+    }
+  }
+  if (inUl) html += '</ul>';
+  return html;
+}
+
+function autoResizeChatInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function handleResumeChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendResumeChat();
+  }
+}
+
+function addChatMessage(text, role) {
+  const history = document.getElementById('jdChatHistory');
+  const div = document.createElement('div');
+  div.className = `chat-msg chat-msg-${role}`;
+  div.textContent = text;
+  history.appendChild(div);
+  history.scrollTop = history.scrollHeight;
+  return div;
+}
+
+async function sendResumeChat() {
+  const input = document.getElementById('jdChatInput');
+  const sendBtn = document.getElementById('jdChatSendBtn');
+  const instruction = input.value.trim();
+  if (!instruction) return;
+
+  const currentResume = window._lastOptimizedResume;
+  if (!currentResume) return;
+
+  input.value = '';
+  autoResizeChatInput(input);
+  input.disabled = true;
+  sendBtn.disabled = true;
+
+  addChatMessage(instruction, 'user');
+  const thinkingBubble = addChatMessage(t('resumeChatThinking'), 'ai typing');
 
   const message = currentLang === 'zh'
-    ? `请作为专业求职顾问，根据以下职位描述对我的简历进行针对性优化。无论内容语言，所有分析和建议必须用中文输出。提供：\n1. 整体评分（0-100分）及主要优缺点\n2. 针对JD的逐条改进建议（措辞、量化成果、关键词匹配）\n3. 每个问题的具体改写示例\n\n【职位描述】\n${jd || '（未提供）'}\n\n【我的简历】\n${resume}`
-    : `As a professional career consultant, optimize my resume specifically for this job description. All suggestions must be in English. Provide:\n1. Overall score (0-100) with key strengths and weaknesses\n2. JD-targeted improvements (wording, quantified achievements, keyword alignment)\n3. Rewrite examples for each issue\n\n[Job Description]\n${jd || '(not provided)'}\n\n[My Resume]\n${resume}`;
+    ? `你是简历编辑助手。根据用户的修改指令，对以下简历进行调整。只输出修改后的完整简历（Markdown格式），不包含任何解释或说明。\n\n【修改指令】\n${instruction}\n\n【当前简历】\n${currentResume}`
+    : `You are a resume editor. Apply the user's instruction to the resume below. Output ONLY the complete updated resume in Markdown format — no explanations.\n\n[Instruction]\n${instruction}\n\n[Current Resume]\n${currentResume}`;
 
   try {
-    const res = await apiFetch('/analyze', {
-      method: 'POST',
-      body: JSON.stringify({ message })
-    });
+    const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
     const data = res ? await res.json() : null;
-    const answer = data?.answer || t('jdAnalyzeFailed');
-    resultBox.innerHTML = renderMarkdown(answer);
+
+    if (!res || !res.ok) {
+      thinkingBubble.textContent = data?.detail || t('resumeChatFailed');
+      thinkingBubble.classList.remove('typing');
+    } else {
+      const updated = data?.answer || '';
+      if (updated) {
+        window._lastOptimizedResume = updated;
+        document.getElementById('jdOptResultBox').innerHTML = renderResumeDoc(updated);
+        thinkingBubble.textContent = t('resumeChatDone');
+        document.getElementById('jdChatHistory').classList.add('collapsed');
+        document.getElementById('jdScrollArea').scrollTop = 0;
+      } else {
+        thinkingBubble.textContent = t('resumeChatFailed');
+      }
+      thinkingBubble.classList.remove('typing');
+    }
   } catch {
-    resultBox.innerHTML = `<span style="color:#c0392b;">${t('jdAnalyzeFailed')}</span>`;
+    thinkingBubble.textContent = t('resumeChatFailed');
+    thinkingBubble.classList.remove('typing');
   }
 
-  btn.disabled = false;
-  btn.textContent = t('resumeOptBtn');
+  input.disabled = false;
+  sendBtn.disabled = false;
+}
+
+async function optimizeResume() {
+  const resume = window._resumeText || '';
+  const jd     = [window._jdFileText || '', document.getElementById('jdJD').value.trim()].filter(Boolean).join('\n\n');
+  if (!resume) { alert(t('resumeRequired')); return; }
+  if (_jdOptimizing) return;
+  _jdOptimizing = true;
+
+  // Switch to optimize tab, show loading state
+  switchRightTab('optimize');
+  document.getElementById('jdChatHistory').innerHTML = '';
+  document.getElementById('jdChatInput').value       = '';
+
+  const resultBox = document.getElementById('jdOptResultBox');
+  const dlWrap    = document.getElementById('jdDlWrap');
+  resultBox.className = '';
+  resultBox.innerHTML = `<div class="doc-loading"><span class="jd-spinner"></span>${t('resumeGenerating')}</div>`;
+
+  const message = currentLang === 'zh'
+    ? `你是一位资深职业顾问和简历撰写专家。请根据以下职位描述，为我生成一份完整、专业、经过优化的简历。直接输出简历正文（Markdown 格式），不需要任何解释、前言或评分。\n\n要求：\n- 保留原简历中真实的工作经历、教育背景等核心事实\n- 优化措辞，使用强有力的动词和量化成果\n- 针对 JD 中的关键词进行匹配优化\n- 结构清晰：个人信息 → 求职意向 → 专业技能 → 工作经历 → 项目经验 → 教育背景\n- 每条工作经历包含 3-5 个要点，使用 STAR 法则\n- 整体风格专业、简洁、有说服力\n\n【职位描述】\n${jd || '（未提供）'}\n\n【我的原简历】\n${resume}`
+    : `You are a senior career consultant and resume writing expert. Generate a complete, professional, optimized resume based on the job description below. Output ONLY the resume body in Markdown format — no explanations, no preamble, no scores.\n\nRequirements:\n- Preserve factual work history, education, and core details from the original resume\n- Optimize wording with strong action verbs and quantified achievements\n- Align keywords with the JD\n- Clear structure: Contact Info → Professional Summary → Skills → Work Experience → Projects → Education\n- Each role should have 3-5 bullet points using the STAR method\n- Professional, concise, and compelling tone\n\n[Job Description]\n${jd || '(not provided)'}\n\n[My Original Resume]\n${resume}`;
+
+  try {
+    const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
+    const data = res ? await res.json() : null;
+
+    if (!res || !res.ok) {
+      resultBox.className = '';
+      resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${data?.detail || t('resumeChatFailed')}</div>`;
+    } else {
+      const answer = data?.answer || '';
+      if (answer) {
+        window._lastOptimizedResume = answer;
+        resultBox.className = 'resume-doc';
+        resultBox.innerHTML = renderResumeDoc(answer);
+        if (_jdActiveTab === 'optimize') {
+          dlWrap.style.display = 'flex';
+          document.getElementById('jdChatPanel').style.display = 'flex';
+          document.getElementById('jdChatInput').disabled    = false;
+          document.getElementById('jdChatSendBtn').disabled  = false;
+          autoResizeChatInput(document.getElementById('jdChatInput'));
+        }
+      } else {
+        resultBox.className = '';
+        resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${t('resumeChatFailed')}</div>`;
+      }
+    }
+  } catch {
+    resultBox.className = '';
+    resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${t('resumeChatFailed')}</div>`;
+  }
+
+  _jdOptimizing = false;
+}
+
+async function downloadResumeDocx() {
+  const content = window._lastOptimizedResume || document.getElementById('jdOptResultBox').innerText;
+  if (!content) {
+    alert(currentLang === 'zh' ? '请先生成优化简历' : 'Please generate the optimized resume first');
+    return;
+  }
+  try {
+    const res = await apiFetch('/export-resume', {
+      method: 'POST',
+      body: JSON.stringify({ content: window._lastOptimizedResume || content, format: 'docx' })
+    });
+    if (!res.ok) throw new Error('Export failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'optimized-resume.docx';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch {
+    alert(currentLang === 'zh' ? '下载失败，请重试' : 'Download failed, please retry');
+  }
+}
+
+async function downloadResumePdf() {
+  const content = window._lastOptimizedResume || document.getElementById('jdOptResultBox').innerText;
+  if (!content) {
+    alert(currentLang === 'zh' ? '请先生成优化简历' : 'Please generate the optimized resume first');
+    return;
+  }
+  try {
+    const res = await apiFetch('/export-resume', {
+      method: 'POST',
+      body: JSON.stringify({ content: window._lastOptimizedResume || content, format: 'pdf' })
+    });
+    if (!res.ok) throw new Error('Export failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'optimized-resume.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch {
+    alert(currentLang === 'zh' ? '下载失败，请重试' : 'Download failed, please retry');
+  }
+}
+
+function downloadResumeMd() {
+  const content = window._lastOptimizedResume;
+  if (!content) { alert(currentLang === 'zh' ? '请先生成优化简历' : 'Please generate the optimized resume first'); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: 'text/markdown' }));
+  a.download = 'optimized-resume.md';
+  a.click();
+}
+
+function downloadResumeTxt() {
+  const content = window._lastOptimizedResume;
+  if (!content) { alert(currentLang === 'zh' ? '请先生成优化简历' : 'Please generate the optimized resume first'); return; }
+  const txt = content
+    .replace(/^#{1,3} /gm, '')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/^[-*•] /gm, '• ');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' }));
+  a.download = 'optimized-resume.txt';
+  a.click();
 }
 
 // ── Resume file upload ──
@@ -2691,18 +3200,60 @@ async function handleFileUpload(file, textareaId, nameElId) {
 async function handleResumeUpload(input) {
   const file = input.files[0];
   if (!file) return;
-  await handleFileUpload(file, 'jdResume', 'jdResumeFileName');
-  const text = document.getElementById('jdResume').value.trim();
-  if (text) localStorage.setItem(RESUME_STORAGE_KEY, text);
+  const nameEl = document.getElementById('jdResumeFileName');
+  nameEl.textContent = t('resumeUploading');
+  nameEl.style.color = '#888070';
+  try {
+    let text = '';
+    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+      text = await extractPdfText(file);
+    } else {
+      text = await file.text();
+    }
+    text = text.trim();
+    window._resumeText = text;
+    if (text) {
+      localStorage.setItem(RESUME_STORAGE_KEY, text);
+      localStorage.setItem(RESUME_FILENAME_KEY, file.name);
+      nameEl.textContent = file.name;
+      nameEl.style.color = '#3a3528';
+    } else {
+      nameEl.textContent = t('resumeUploadErr');
+      nameEl.style.color = '#b0a99c';
+    }
+  } catch {
+    nameEl.textContent = t('resumeUploadErr');
+    nameEl.style.color = '#b0a99c';
+  }
   input.value = '';
 }
 
 async function handleJDUpload(input) {
   const file = input.files[0];
   if (!file) return;
-  await handleFileUpload(file, 'jdJD', 'jdJDFileName');
-  const text = document.getElementById('jdJD').value.trim();
-  if (text) localStorage.setItem(JD_STORAGE_KEY, text);
+  const nameEl = document.getElementById('jdJDFileName');
+  nameEl.textContent = t('resumeUploading');
+  nameEl.style.color = '#888070';
+  try {
+    let text = '';
+    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+      text = await extractPdfText(file);
+    } else {
+      text = await file.text();
+    }
+    text = text.trim();
+    window._jdFileText = text;
+    if (text) {
+      nameEl.textContent = file.name;
+      nameEl.style.color = '#3a3528';
+    } else {
+      nameEl.textContent = t('resumeUploadErr');
+      nameEl.style.color = '#b0a99c';
+    }
+  } catch {
+    nameEl.textContent = t('resumeUploadErr');
+    nameEl.style.color = '#b0a99c';
+  }
   input.value = '';
 }
 
@@ -2724,24 +3275,30 @@ async function extractPdfText(file) {
 
 // ── JD Match ──
 
-const RESUME_STORAGE_KEY = 'jd_resume_v1';
-const JD_STORAGE_KEY     = 'jd_jd_v1';
+const RESUME_STORAGE_KEY  = 'jd_resume_v1';
+const RESUME_FILENAME_KEY = 'jd_resume_filename_v1';
+const JD_STORAGE_KEY      = 'jd_jd_v1';
 
 function loadSavedResume() {
   const resume = localStorage.getItem(RESUME_STORAGE_KEY);
-  if (resume) document.getElementById('jdResume').value = resume;
+  if (resume) {
+    window._resumeText = resume;
+    const nameEl = document.getElementById('jdResumeFileName');
+    if (nameEl) {
+      const filename = localStorage.getItem(RESUME_FILENAME_KEY) || '';
+      if (filename) {
+        nameEl.textContent = filename;
+        nameEl.style.color = '#3a3528';
+      }
+    }
+  }
   const jd = localStorage.getItem(JD_STORAGE_KEY);
   if (jd) document.getElementById('jdJD').value = jd;
 }
 
 let _resumeSaveTimer = null;
 function autoSaveResume() {
-  clearTimeout(_resumeSaveTimer);
-  _resumeSaveTimer = setTimeout(() => {
-    const text = document.getElementById('jdResume').value.trim();
-    if (text) localStorage.setItem(RESUME_STORAGE_KEY, text);
-    else localStorage.removeItem(RESUME_STORAGE_KEY);
-  }, 1000);
+  // Resume is now uploaded via file; saving happens in handleResumeUpload()
 }
 
 let _jdSaveTimer = null;
@@ -2755,15 +3312,21 @@ function autoSaveJD() {
 }
 
 function clearJD() {
-  document.getElementById('jdJD').value = '';
   document.getElementById('jdJDFileName').textContent = '';
+  window._jdFileText = '';
+}
+
+function clearJDText() {
+  document.getElementById('jdJD').value = '';
   localStorage.removeItem(JD_STORAGE_KEY);
 }
 
 function clearResume() {
   localStorage.removeItem(RESUME_STORAGE_KEY);
-  document.getElementById('jdResume').value = '';
-  document.getElementById('jdResumeSavedLabel').textContent = '';
+  localStorage.removeItem(RESUME_FILENAME_KEY);
+  window._resumeText = '';
+  const nameEl = document.getElementById('jdResumeFileName');
+  if (nameEl) nameEl.textContent = '';
 }
 
 function copyJdResult() {
@@ -2793,76 +3356,69 @@ function renderMarkdown(text) {
   return `<p>${html}</p>`;
 }
 
-function toggleJdInput() {
-  const panel      = document.getElementById('jdInputPanel');
-  const btnWrap    = document.getElementById('jdAnalyzeBtnWrap');
-  const statusBar  = document.getElementById('jdStatusBar');
-  const toggleBtn  = document.getElementById('jdToggleBtn');
-  const collapsed  = panel.style.display === 'none';
-  panel.style.display    = collapsed ? 'flex' : 'none';
-  btnWrap.style.display  = collapsed ? ''     : 'none';
-  statusBar.style.display= collapsed ? 'none' : 'flex';
-  toggleBtn.textContent  = collapsed ? t('jdCollapseInputs') : t('jdExpandInputs');
-}
-
-function scoreColor(n) {
-  if (n >= 75) return '#10b981';
-  if (n >= 50) return '#f59e0b';
-  return '#dc2626';
-}
-
-function jdTable(rows, rightKey, rightColor) {
-  const header = rightKey === 'you'
-    ? `<div style="display:flex;padding:0 0 8px;border-bottom:1px solid #dcd8d0;margin-bottom:0;">
-        <span style="flex:1;font-size:12px;font-weight:600;color:#888070;" data-i18n="jdColJD">${t('jdColJD')}</span>
-        <span style="flex:1;font-size:12px;font-weight:600;color:#888070;" data-i18n="jdColYou">${t('jdColYou')}</span>
-       </div>`
-    : `<div style="display:flex;padding:0 0 8px;border-bottom:1px solid #dcd8d0;margin-bottom:0;">
-        <span style="flex:1;font-size:12px;font-weight:600;color:#888070;" data-i18n="jdColJD">${t('jdColJD')}</span>
-        <span style="flex:1;font-size:12px;font-weight:600;color:#888070;" data-i18n="jdColIssue">${t('jdColIssue')}</span>
-       </div>`;
-  const bodyRows = rows.map(r => `
-    <div style="display:flex;padding:10px 0;border-bottom:1px solid #eeeae2;align-items:baseline;">
-      <span style="flex:1;font-size:13px;color:#0d0d0d;">${esc(r.jd || '')}</span>
-      <span style="flex:1;font-size:13px;color:${rightColor};">${rightKey === 'you' ? '✓ ' : ''}${esc(r[rightKey] || '')}</span>
-    </div>`).join('');
-  return header + bodyRows;
-}
 
 function renderJDResult(data) {
-  const color = scoreColor(data.score);
-  const matched = data.matched || [];
-  const gaps    = data.gaps    || [];
-  const total   = matched.length + gaps.length;
-  const matchPct = total ? Math.round(matched.length / total * 100) : 50;
-  const gapPct   = 100 - matchPct;
+  const matched = (data.matched || []).filter(Boolean);
+  const gaps    = (data.gaps    || []).filter(Boolean);
+  const ats     = (data.ats    || []).filter(Boolean);
+
+  const matchedRows = matched.map(m => {
+    const point    = esc(typeof m === 'object' ? (m.point || '') : String(m));
+    const evidence = typeof m === 'object' && m.evidence ? esc(m.evidence) : '';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #eef9f4;">
+      <span class="match-tag match-tag-hit" style="flex-shrink:0;">✓ ${point}</span>
+      ${evidence ? `<span style="font-size:11px;color:#888070;line-height:1.4;">${evidence}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  const atsTags = ats.map(a => {
+    const kw  = esc(typeof a === 'object' ? (a.kw || '') : String(a));
+    const hit = typeof a === 'object' ? !!a.hit : false;
+    return hit
+      ? `<span class="match-tag match-tag-hit">✓ ${kw}</span>`
+      : `<span class="match-tag" style="background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;">✕ ${kw}</span>`;
+  }).join('');
+
+  const hitCount  = ats.filter(a => typeof a === 'object' && a.hit).length;
+  const atsDelay  = 0.08 + (matched.length ? 0.14 : 0) + (gaps.length ? 0.14 : 0);
 
   return `
-    <div class="jd-result-header result-block-in" style="animation-delay:0s;">
-      <div class="jd-score-circle" style="border-color:${color};color:${color};">
-        <span class="jd-score-num">${data.score}</span>
-        <span class="jd-score-sub">/ 100</span>
-      </div>
-      ${data.conclusion ? `<p class="jd-summary-text">${esc(data.conclusion)}</p>` : ''}
-    </div>
-    <div class="jd-divider result-block-in" style="animation-delay:0.08s;"></div>
-    ${matched.length ? `
-    <div class="result-block-in" style="margin-bottom:24px;animation-delay:0.14s;">
-      <div class="jd-skills-title" style="color:#065f46;margin-bottom:12px;">${t('jdSkillsMatched')}（约${matchPct}%）：</div>
-      ${jdTable(matched, 'you', '#059669')}
+    ${data.summary ? `<div class="result-block-in" style="animation-delay:0s;margin-bottom:20px;">
+      <p class="jd-summary-text">${esc(data.summary)}</p>
     </div>` : ''}
-    ${gaps.length ? `
-    <div class="result-block-in" style="margin-bottom:24px;animation-delay:${matched.length ? '0.24' : '0.14'}s;">
-      <div class="jd-skills-title" style="color:#991b1b;margin-bottom:12px;">${t('jdSkillsMissing')}（约${gapPct}%）：</div>
-      ${jdTable(gaps, 'issue', '#555048')}
+    ${(matched.length || gaps.length) ? `
+    <div class="jd-divider result-block-in" style="animation-delay:0.08s;"></div>
+    <div class="result-block-in" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;animation-delay:0.12s;">
+      <div>
+        <div class="jd-skills-title" style="color:#065f46;">${t('jdSkillsMatched')}</div>
+        <div>${matchedRows}</div>
+      </div>
+      <div>
+        <div class="jd-skills-title" style="color:#991b1b;">${t('jdSkillsMissing')}</div>
+        <div>${gaps.map(g => {
+          const point = esc(typeof g === 'object' ? (g.point || '') : String(g));
+          const note  = typeof g === 'object' && g.note ? esc(g.note) : '';
+          return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #eef9f4;"><span class="match-tag match-tag-gap" style="flex-shrink:0;">✕ ${point}</span>${note ? `<span style="font-size:11px;color:#888070;line-height:1.4;">${note}</span>` : ''}</div>`;
+        }).join('')}</div>
+      </div>
+    </div>` : ''}
+    ${ats.length ? `
+    <div class="jd-divider result-block-in" style="animation-delay:${atsDelay.toFixed(2)}s;"></div>
+    <div class="result-block-in" style="margin-bottom:16px;animation-delay:${(atsDelay + 0.04).toFixed(2)}s;">
+      <div class="jd-skills-title" style="display:flex;align-items:center;gap:8px;">
+        ${t('jdAtsKeywords')}
+        <span style="font-size:11px;font-weight:400;color:#888070;">${hitCount} / ${ats.length} ${t('jdAtsHit')}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">${atsTags}</div>
     </div>` : ''}`;
 }
 
 async function analyzeMatch() {
-  const resume = document.getElementById('jdResume').value.trim();
-  const jd     = document.getElementById('jdJD').value.trim();
+  const resume = window._resumeText || '';
+  const jd     = [window._jdFileText || '', document.getElementById('jdJD').value.trim()].filter(Boolean).join('\n\n');
   if (!resume || !jd) { alert(t('jdRequired')); return; }
 
+  _jdAnalyzing = true;
   const btn = document.getElementById('jdAnalyzeBtn');
   btn.disabled = true;
   btn.textContent = t('jdAnalyzing');
@@ -2870,11 +3426,14 @@ async function analyzeMatch() {
   const resultBox     = document.getElementById('jdResultBox');
   const resultSection = document.getElementById('jdResultSection');
   resultBox.innerHTML = `<div class="jd-loading"><span class="jd-spinner"></span>${t('jdAnalyzing')}</div>`;
+  // Ensure we're on the analyze tab and show loading state
+  switchRightTab('analyze');
+  document.getElementById('jdEmptyHintBox').style.display = 'none';
   resultSection.style.display = 'block';
 
   const message = currentLang === 'zh'
-    ? `你是资深招聘官，请分析以下职位描述和简历的匹配度。无论输入内容是何种语言，所有分析结果必须用中文输出。严格只输出JSON，不要输出任何JSON之外的内容：\n{"score":<0到100整数>,"matched":[{"jd":"<JD要求>","you":"<候选人对应情况>"},...],"gaps":[{"jd":"<JD要求>","issue":"<差距说明>"},...],"conclusion":"<2-3句结论，直接评价通过率和最大障碍>"}\n\n【职位描述】\n${jd}\n\n【我的简历】\n${resume}`
-    : `You are a senior recruiter. Analyze the match between the job description and resume. Regardless of the input language, all analysis output must be in English. Output ONLY valid JSON, no other text:\n{"score":<integer 0-100>,"matched":[{"jd":"<JD requirement>","you":"<candidate situation>"},...],"gaps":[{"jd":"<JD requirement>","issue":"<gap explanation>"},...],"conclusion":"<2-3 sentence verdict on pass rate and biggest obstacle>"}\n\n[Job Description]\n${jd}\n\n[My Resume]\n${resume}`;
+    ? `你是资深招聘官，分析职位描述与简历的匹配度。所有输出必须用中文。严格只输出JSON，不输出任何其他内容：\n{"summary":"<2-3句自然语言，必须包含匹配度百分比，直接点出最关键的匹配或障碍，语气直接客观，例：匹配度为60%，核心缺口是行业经验。你在XX的背景和岗位要求的YY高度重合，但ZZ是硬门槛。>","matched":[{"point":"<匹配点，6字以内>","evidence":"<简历中的直接依据，10字以内>"},...],"gaps":[{"point":"<缺口，6字以内>","note":"<说明为何是缺口或影响，10字以内>"},...],"ats":[{"kw":"<JD关键词：技能/工具/证书/语言等>","hit":<true或false>},...]}\n\nmatched和gaps各自控制在5条以内，ats控制在12个以内。\n\n【职位描述】\n${jd}\n\n【我的简历】\n${resume}`
+    : `You are a senior recruiter. Analyze resume-JD fit. Output ONLY JSON, no other text:\n{"summary":"<2-3 sentences, must include a match percentage, call out the single most critical strength or blocker directly and specifically, e.g. 'Match rate is 70%. Your background in X aligns well with Y, but Z is a hard requirement you don't meet.'>","matched":[{"point":"<≤5 words>","evidence":"<≤8 words>"},...],"gaps":[{"point":"<≤5 words>","note":"<why it's a gap or its impact, ≤8 words>"},...],"ats":[{"kw":"<skill/tool/cert>","hit":<true/false>},...]}\n\nLimit matched and gaps to 5 items, ats to 12.\n\n[Job Description]\n${jd}\n\n[My Resume]\n${resume}`;
 
   try {
     const res = await apiFetch('/analyze', {
@@ -2882,43 +3441,25 @@ async function analyzeMatch() {
       body: JSON.stringify({ message })
     });
     const data = res ? await res.json() : null;
-    const raw  = data?.answer || '';
 
-    let parsed;
-    try {
-      const cleaned = raw.trim().replace(/^```json\s*/i,'').replace(/^```/,'').replace(/```$/,'').trim();
-      parsed = JSON.parse(cleaned);
-    } catch {
-      resultBox.innerHTML = renderMarkdown(raw || t('jdAnalyzeFailed'));
-      return;
+    if (!res || !res.ok) {
+      const msg = data?.detail || t('jdAnalyzeFailed');
+      resultBox.innerHTML = `<p style="color:#c0392b;text-align:center;padding:40px 0;">${msg}</p>`;
+    } else {
+      const raw = data?.answer || '';
+      const parsed = extractJSON(raw);
+      if (!parsed || !parsed.summary) {
+        resultBox.innerHTML = `<p style="color:#c0392b;text-align:center;padding:40px 0;">${t('jdAnalyzeFailed')}</p>`;
+        return;
+      }
+      resultBox.innerHTML = renderJDResult(parsed);
+      document.getElementById('jdResultSection').dataset.loaded = '1';
     }
-
-    resultBox.innerHTML = renderJDResult(parsed);
-
-    document.getElementById('jdInputPanel').style.display    = 'none';
-    document.getElementById('jdAnalyzeBtnWrap').style.display= 'none';
-    document.getElementById('jdStatusBar').style.display     = 'flex';
-    document.getElementById('jdToggleBtn').textContent       = t('jdExpandInputs');
-
-    // Reveal optimize section with flip-in
-    const optWrap = document.getElementById('jdOptWrap');
-    optWrap.style.opacity = '0';
-    optWrap.style.transform = 'perspective(700px) rotateX(-6deg) translateY(12px)';
-    optWrap.style.transition = 'none';
-    optWrap.style.display = 'block';
-    document.getElementById('jdOptResultBox').innerHTML = '';
-    const optBtn = document.getElementById('jdOptBtn');
-    optBtn.disabled = false;
-    optBtn.textContent = t('resumeOptBtn');
-    setTimeout(() => {
-      optWrap.style.transition = 'opacity 0.32s ease, transform 0.32s ease';
-      optWrap.style.opacity = '1';
-      optWrap.style.transform = 'none';
-    }, 50);
   } catch {
     resultBox.innerHTML = `<span style="color:#dc2626;">${t('jdAnalyzeFailed')}</span>`;
   }
 
+  _jdAnalyzing = false;
   btn.disabled = false;
   btn.textContent = t('jdAnalyzeBtn');
 }
