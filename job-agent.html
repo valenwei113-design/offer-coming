@@ -422,7 +422,7 @@
     .sidebar-tab[data-tab="jdmatch"]:hover,
     .sidebar-tab[data-tab="jdmatch"].active { border-left-color: #c0392b; }
     .sidebar-tab[data-tab="fate"]:hover,
-    .sidebar-tab[data-tab="fate"].active    { border-left-color: #2a5a9a; }
+    .sidebar-tab[data-tab="fate"].active    { border-left-color: #6a5a48; }
     .sidebar-tab[data-tab="tracker"]:hover,
     .sidebar-tab[data-tab="tracker"].active { border-left-color: #2a7a4a; }
     .sidebar-tab.active {
@@ -541,8 +541,10 @@
       display: inline-block; border-radius: 5px; padding: 4px 10px;
       font-size: 12px; font-weight: 500; margin: 3px 4px 3px 0; line-height: 1.4;
     }
-    .match-tag-hit { background: #d1fae5; color: #065f46; }
-    .match-tag-gap { background: #fee2e2; color: #991b1b; }
+    .match-tag-hit  { background: #d1fae5; color: #065f46; }
+    .match-tag-gap  { background: #fee2e2; color: #991b1b; }
+    .match-tag-soft { background: #fef3c7; color: #92400e; }
+    .match-tag-partial { background: #fef9c3; color: #713f12; }
 
     /* ── Resume document preview ── */
     .resume-doc {
@@ -559,6 +561,21 @@
     .resume-doc strong { font-weight: 600; color: #000; }
     .resume-doc hr { border: none; border-top: 1px solid #e8e4de; margin: 16px 0; }
     .doc-loading { display:flex;align-items:center;gap:10px;color:#888070;font-size:13px;padding:60px 0;justify-content:center; }
+
+    /* ── JD left panel collapse ── */
+    #jdLeftPanel { transition: width 0.25s cubic-bezier(0.4,0,0.2,1); overflow: hidden; }
+    #jdLeftPanel.collapsed { width: 0 !important; }
+    #jdRightPanel { position: relative; }
+    #jdLeftCollapseBtn {
+      position: absolute; left: 0; top: 50%; transform: translate(-50%, -50%);
+      z-index: 20; width: 20px; height: 20px; border-radius: 50%;
+      border: 1px solid #dcd8d0; background: #f8f6f2;
+      cursor: pointer; font-size: 12px; color: #888070; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      font-family: inherit; box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    }
+    #jdLeftCollapseBtn:hover { background: #eeeae2; color: #0d0d0d; border-color: #bbb8b0; }
 
     /* ── Right panel tabs ── */
     .jd-right-tab { padding:10px 18px; font-size:13px; color:#888070; border:none; border-bottom:2px solid transparent; background:none; cursor:pointer; font-family:inherit; white-space:nowrap; transition:color 0.15s; }
@@ -619,85 +636,140 @@
     }
     .fate-select:focus { border-color: #555048; }
 
-    .fate-card {
-      width: 148px; height: 230px;
-      perspective: 1000px;
-      cursor: pointer; flex-shrink: 0;
-      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.4s;
-      position: relative; z-index: 1;
+    @keyframes cosmicArrive {
+      from { opacity:0; transform:translateY(28px) scale(0.93); filter:blur(4px); }
     }
-    .fate-card:nth-child(1) { transform: rotate(-7deg) translateY(12px); }
-    .fate-card:nth-child(2) { transform: rotate(-2.5deg) translateY(4px); }
-    .fate-card:nth-child(3) { transform: rotate(2.5deg) translateY(4px); }
-    .fate-card:nth-child(4) { transform: rotate(7deg) translateY(12px); }
-    .fate-card:nth-child(1):not(.flipped):not(.faded):hover { transform: rotate(-3deg) translateY(-4px) scale(1.06); z-index:5; }
-    .fate-card:nth-child(2):not(.flipped):not(.faded):hover { transform: rotate(-1deg) translateY(-6px) scale(1.06); z-index:5; }
-    .fate-card:nth-child(3):not(.flipped):not(.faded):hover { transform: rotate(1deg) translateY(-6px) scale(1.06); z-index:5; }
-    .fate-card:nth-child(4):not(.flipped):not(.faded):hover { transform: rotate(3deg) translateY(-4px) scale(1.06); z-index:5; }
-    .fate-card.flipped  { transform: rotate(0deg) translateY(-20px) scale(1.1) !important; z-index:10; cursor:default; }
-    .fate-card.faded    { opacity: 0.2; transform: rotate(0deg) scale(0.9) !important; cursor:default; }
-
-    @keyframes cardDeal {
-      from { opacity:0; transform: translateY(-60px) scale(0.7); }
+    .cosmic-letter {
+      max-width:420px; width:90%;
+      background: #faf8f4;
+      border:1px solid #dcd8d0;
+      border-radius:14px;
+      padding:36px 32px 32px;
+      position:relative; overflow:hidden;
+      box-shadow:0 4px 20px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+      animation:cosmicArrive 0.9s cubic-bezier(0.22,1,0.36,1);
     }
-    .fate-card:nth-child(1) { animation: cardDeal 0.4s ease-out backwards 0s; }
-    .fate-card:nth-child(2) { animation: cardDeal 0.4s ease-out backwards 0.09s; }
-    .fate-card:nth-child(3) { animation: cardDeal 0.4s ease-out backwards 0.18s; }
-    .fate-card:nth-child(4) { animation: cardDeal 0.4s ease-out backwards 0.27s; }
-
-    .fate-card-inner {
+    .cosmic-letter::after {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background-image:
+        radial-gradient(1px 1px at 14% 18%, rgba(60,45,30,0.22) 0%, transparent 100%),
+        radial-gradient(1px 1px at 71% 11%, rgba(60,45,30,0.16) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 87% 32%, rgba(60,45,30,0.18) 0%, transparent 100%),
+        radial-gradient(1px 1px at 32% 72%, rgba(60,45,30,0.13) 0%, transparent 100%),
+        radial-gradient(1px 1px at 58% 85%, rgba(60,45,30,0.16) 0%, transparent 100%),
+        radial-gradient(1px 1px at 44% 52%, rgba(60,45,30,0.11) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 80% 58%, rgba(60,45,30,0.14) 0%, transparent 100%),
+        radial-gradient(1px 1px at 6%  65%, rgba(60,45,30,0.10) 0%, transparent 100%),
+        radial-gradient(1px 1px at 93% 75%, rgba(60,45,30,0.13) 0%, transparent 100%);
+    }
+    .cosmic-seal {
+      text-align:center; font-size:26px; line-height:1;
+      margin-bottom:12px; position:relative; z-index:1; opacity:0.55;
+    }
+    .cosmic-from {
+      text-align:center; font-size:9px;
+      color:#999080; letter-spacing:5px;
+      margin-bottom:18px; position:relative; z-index:1;
+    }
+    .cosmic-rule {
+      border:none; border-top:1px solid #dcd8d0;
+      margin:0 0 22px; position:relative; z-index:1;
+    }
+    .cosmic-body {
+      font-size:13.5px; color:#1a1610;
+      line-height:2.15; text-align:center;
+      white-space:pre-line;
+      position:relative; z-index:1;
+    }
+    .cosmic-sig {
+      margin-top:28px; text-align:right;
+      font-size:9px; color:#aaa090;
+      letter-spacing:3px; position:relative; z-index:1;
+    }
+    /* ── Fate Envelope ── */
+    @keyframes envelopeFloat {
+      0%,100% { transform:translateY(0); }
+      50%      { transform:translateY(-10px); }
+    }
+    @keyframes envelopeGlow {
+      0%,100% { box-shadow:0 6px 28px rgba(0,0,0,0.09); }
+      50%      { box-shadow:0 12px 48px rgba(160,140,100,0.22), 0 0 32px rgba(200,180,140,0.15); }
+    }
+    @keyframes starFloat {
+      0%   { opacity:0; transform:translateY(0) scale(0.6); }
+      20%  { opacity:1; }
+      80%  { opacity:0.8; }
+      100% { opacity:0; transform:translateY(-60px) scale(1.2); }
+    }
+    .fate-envelope {
+      width:min(540px,84vw); height:min(336px,52vw);
+      position:relative; cursor:pointer;
+      perspective:1000px;
+      transition:filter 0.2s;
+    }
+    .fate-envelope:not(.loading):not(.open):hover {
+      filter:drop-shadow(0 14px 32px rgba(0,0,0,0.13));
+    }
+    .fate-envelope.loading {
+      pointer-events:none;
+      animation:envelopeFloat 2s ease-in-out infinite;
+    }
+    .fate-envelope.loading .fate-envelope-body {
+      animation:envelopeGlow 2s ease-in-out infinite;
+    }
+    .fate-envelope.loading .fate-envelope-label {
+      animation:envelopeGlow 2s ease-in-out infinite;
+    }
+    /* 收取中浮动星星 */
+    .fate-star-particle {
+      position:absolute; font-size:14px; pointer-events:none;
+      animation:starFloat 2s ease-out infinite;
+      z-index:10;
+    }
+    .fate-envelope-body {
       width:100%; height:100%;
-      position:relative;
-      transform-style: preserve-3d;
-      transition: transform 0.75s cubic-bezier(0.4,0,0.2,1);
+      background:#faf8f4;
+      border:2px solid #c8c0b0;
+      border-radius:4px;
+      position:relative; overflow:hidden;
+      box-shadow:0 6px 28px rgba(0,0,0,0.09);
+      transition:box-shadow 0.4s;
     }
-    .fate-card.flipped .fate-card-inner { transform: rotateY(180deg); }
-
-    .fate-card-back, .fate-card-front {
-      position:absolute; width:100%; height:100%;
-      backface-visibility: hidden;
-      border-radius: 12px;
-      border: 2px solid #c8a850;
+    /* top sealed flap — clip-path triangle so rotateX works */
+    .fate-envelope-flap {
+      position:absolute; top:0; left:0; right:0; height:50%;
+      background:#e0d9cf;
+      clip-path:polygon(0 0,100% 0,50% 100%);
+      transform-origin:top center;
+      transition:transform 0.75s cubic-bezier(0.4,0,0.2,1);
+      z-index:3;
     }
-    .fate-card-back {
-      background: radial-gradient(ellipse at 50% 35%, #2e1a4a 0%, #0c0816 100%);
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center; gap:8px;
-      overflow:hidden;
+    .fate-envelope.open .fate-envelope-flap { transform:rotateX(-185deg); }
+    /* bottom V fold */
+    .fate-envelope-fold {
+      position:absolute; bottom:0; left:0; right:0; height:50%; z-index:2;
     }
-    .fate-card-back::before {
-      content:''; position:absolute; inset:7px;
-      border: 1px solid rgba(200,168,80,0.45); border-radius:8px; pointer-events:none;
+    .fate-envelope-fold::before,
+    .fate-envelope-fold::after {
+      content:''; position:absolute; bottom:0; width:50%; height:100%;
+      background:#ece7de;
     }
-    .fate-card-back-star {
-      font-size:30px; color:#c8a850; line-height:1;
-      text-shadow: 0 0 18px rgba(200,168,80,0.7);
+    .fate-envelope-fold::before { left:0;  clip-path:polygon(0 100%,100% 0,100% 100%); }
+    .fate-envelope-fold::after  { right:0; clip-path:polygon(0 0,100% 100%,0 100%);   }
+    /* center label */
+    .fate-envelope-center {
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center; z-index:4;
     }
-    .fate-card-back-label {
-      font-size:9px; font-weight:700; color:#c8a850;
-      letter-spacing:3px; opacity:0.65; text-transform:uppercase;
+    .fate-envelope-label {
+      font-size:13px; color:#999080; letter-spacing:2px; pointer-events:none;
     }
-    .fate-card-front {
-      background: linear-gradient(165deg, #fef9ed 0%, #f5e8c8 100%);
-      transform: rotateY(180deg);
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:space-between;
-      padding:18px 14px; overflow:hidden;
+    .fate-reset-btn {
+      font-size:11px; color:#bbb0a0; background:none; border:none;
+      cursor:pointer; letter-spacing:1px; padding:4px 8px;
+      transition:color 0.15s; font-family:inherit;
     }
-    .fate-card-front::before {
-      content:''; position:absolute; inset:7px;
-      border: 1px solid rgba(200,168,80,0.45); border-radius:8px; pointer-events:none;
-    }
-    .fate-card-front-icon { font-size:20px; color:#c8a850; flex-shrink:0; }
-    .fate-card-message {
-      font-size:11.5px; color:#1a1610; line-height:1.75;
-      text-align:center; font-style:italic;
-      flex:1; display:flex; align-items:center; padding:8px 0;
-    }
-    .fate-card-front-footer {
-      font-size:9px; color:#c8a850; letter-spacing:2px;
-      opacity:0.65; text-transform:uppercase; flex-shrink:0;
-    }
+    .fate-reset-btn:hover { color:#888070; }
 
     /* ── Admin tabs ── */
     .admin-tabs { display: flex; gap: 0; border-bottom: 1px solid #dcd8d0; flex-shrink: 0; }
@@ -884,6 +956,43 @@
     .home-recent-position { font-size: 12px; color: #555048; margin-top: 2px; }
     .home-recent-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .home-recent-date { font-size: 11px; color: #888070; }
+
+    /* ── Tech News Feed ── */
+    .news-feed-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:14px;
+    }
+    .news-feed-title {
+      font-size:11px; font-weight:600; color:#888070;
+      text-transform:uppercase; letter-spacing:0.8px;
+    }
+    .news-refresh-btn {
+      font-size:13px; color:#888070; background:none; border:none;
+      cursor:pointer; padding:2px 6px; border-radius:4px;
+      transition:color 0.15s, background 0.15s;
+    }
+    .news-refresh-btn:hover { color:#0d0d0d; background:#eeeae2; }
+    .news-item {
+      display:block; padding:14px 0; border-bottom:1px solid #eeeae2;
+      text-decoration:none; color:inherit;
+      transition:background 0.12s;
+    }
+    .news-item:last-child { border-bottom:none; }
+    .news-item:hover .news-item-title { color:#c0392b; }
+    .news-item-meta {
+      display:flex; align-items:center; gap:8px; margin-bottom:5px;
+    }
+    .news-item-source {
+      font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.6px;
+    }
+    .news-item-date { font-size:10px; color:#aaa090; }
+    .news-item-title {
+      font-size:13px; font-weight:600; color:#0d0d0d; line-height:1.5;
+      transition:color 0.12s;
+    }
+    .news-item-desc {
+      font-size:12px; color:#888070; margin-top:4px; line-height:1.6;
+    }
   </style>
 </head>
 <body>
@@ -946,11 +1055,11 @@
 
       <div class="divider"></div>
 
-      <button class="add-btn" onclick="toggleChat()">💬 Ask AI</button>
       <div style="display:flex;gap:8px;">
         <button class="add-btn" onclick="openFeedback()" style="flex:1;background:#eeeae2;color:#555048;border:1px solid #dcd8d0;font-size:11px;padding:8px 4px;" data-i18n="feedbackBtn"></button>
         <button class="add-btn" onclick="openDonate()" style="flex:1;background:#eeeae2;color:#555048;border:1px solid #dcd8d0;font-size:11px;padding:8px 4px;" data-i18n="donateBtn"></button>
       </div>
+      <button class="add-btn" onclick="toggleChat()">💬 Ask AI</button>
 
       <div class="divider"></div>
 
@@ -985,22 +1094,29 @@
           </div>
 
           <!-- Stats grid -->
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;">
             <div class="home-stat-card" style="border-left-color:#0d0d0d;">
               <div class="home-stat-value" id="homeStat-total">—</div>
               <div class="home-stat-label" data-i18n="homeStatTotal"></div>
-            </div>
-            <div class="home-stat-card" style="border-left-color:#2a7a4a;">
-              <div class="home-stat-value" id="homeStat-offer" style="color:#2a7a4a;">—</div>
-              <div class="home-stat-label" data-i18n="homeStatOffer"></div>
             </div>
             <div class="home-stat-card" style="border-left-color:#2a5a9a;">
               <div class="home-stat-value" id="homeStat-interview" style="color:#2a5a9a;">—</div>
               <div class="home-stat-label" data-i18n="homeStatInterview"></div>
             </div>
-            <div class="home-stat-card" style="border-left-color:#888070;">
-              <div class="home-stat-value" id="homeStat-pending" style="color:#888070;">—</div>
-              <div class="home-stat-label" data-i18n="homeStatPending"></div>
+            <div class="home-stat-card" style="border-left-color:#2a7a4a;">
+              <div class="home-stat-value" id="homeStat-offer" style="color:#2a7a4a;">—</div>
+              <div class="home-stat-label" data-i18n="homeStatOffer"></div>
+            </div>
+          </div>
+
+          <!-- News Feed -->
+          <div>
+            <div class="news-feed-header">
+              <div class="news-feed-title">科技资讯</div>
+              <button class="news-refresh-btn" onclick="loadNewsFeed(true)" title="刷新">↻</button>
+            </div>
+            <div id="newsItemsArea">
+              <div style="color:#aaa090;font-size:13px;text-align:center;padding:40px 0;">切换到此页面自动加载</div>
             </div>
           </div>
 
@@ -1087,6 +1203,7 @@
 
         <!-- Right: Results -->
         <div id="jdRightPanel" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;">
+          <button id="jdLeftCollapseBtn" onclick="toggleJdLeftPanel()" title="折叠面板">‹</button>
 
           <!-- Right panel tab bar -->
           <div style="flex-shrink:0;display:flex;align-items:stretch;border-bottom:1px solid #eeeae2;background:#fff;">
@@ -1142,19 +1259,21 @@
       <div id="tab-fate" class="main-tab-content" style="flex-direction:column;">
 
         <!-- Selector -->
-        <div style="padding:24px 24px 12px;flex-shrink:0;display:flex;gap:12px;align-items:center;">
+        <div style="padding:24px 24px 12px;flex-shrink:0;display:flex;align-items:center;">
           <select id="fateAppSelect" class="fate-select"></select>
-          <button class="jd-analyze-btn" id="fateDrawBtn" onclick="drawFateCards()" style="flex-shrink:0;padding:8px 20px;font-size:13px;">
-            ✦ <span data-i18n="fateDrawBtn"></span>
-          </button>
         </div>
-        <div id="fateHint" style="padding:0 24px 8px;font-size:12px;color:#888070;font-style:italic;flex-shrink:0;"></div>
+        <div id="fateHint" style="padding:0 24px 8px;font-size:12px;color:#888070;flex-shrink:0;"></div>
 
-        <!-- Cards -->
-        <div id="fateCardsArea" style="flex:1;display:flex;align-items:flex-end;justify-content:center;padding:20px 24px 80px;gap:28px;">
-          <div style="color:#aaa090;font-size:13px;text-align:center;padding-bottom:40px;">
-            <div style="font-size:52px;margin-bottom:14px;opacity:0.5;">🔮</div>
-            <div data-i18n="fateEmptyHint"></div>
+        <!-- Main area -->
+        <div id="fateCardsArea" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 24px;gap:16px;">
+          <div class="fate-envelope" id="fateEnvelope" onclick="drawFateCards()">
+            <div class="fate-envelope-body">
+              <div class="fate-envelope-flap"></div>
+              <div class="fate-envelope-fold"></div>
+              <div class="fate-envelope-center">
+                <span class="fate-envelope-label" data-i18n="fateDrawBtn"></span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1419,6 +1538,9 @@
 
 <script>
 window._resumeText = '';
+window._resumePageImages = null;
+window._resumeWordB64 = null;
+window._lastOptimizedResumeHtml = null;
 const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:8000'
   : `${window.location.protocol}//${window.location.hostname}:8000`;
@@ -1653,17 +1775,17 @@ const LANGS = {
     jdColJD:               'JD要求',
     jdColYou:              '你的情况',
     jdColIssue:            '差距说明',
-    tabFateShort:          '命运选择',
-    fateSelectApp:         '选择一条申请记录',
-    fateDrawBtn:           '抽牌',
-    fateDrawing:           '占卜中...',
-    fateChooseHint:        '选择一张牌，揭示你与这份工作的命运',
-    fateChosenHint:        '命运已定 ✦',
+    tabFateShort:          '宇宙力量',
+    fateSelectApp:         '选择一段求职经历',
+    fateDrawBtn:           '收取宇宙来信',
+    fateDrawing:           '宇宙传信中…',
+    fateChooseHint:        '',
+    fateChosenHint:        '',
     fateNoApps:            '暂无申请记录',
-    fateSelectFirst:       '请先选择一条申请记录',
-    fateEmptyHint:         '选择一条申请记录，开始占卜',
+    fateSelectFirst:       '请先选择一段求职经历',
+    fateEmptyHint:         '选择一段经历，接收宇宙的回应',
 
-    tabHomeShort:          '主页',
+    tabHomeShort:          '科技资讯',
     homeWelcomeDefault:    '欢迎回来',
     homeStatTotal:         '投递总数',
     homeStatOffer:         '录用',
@@ -1903,17 +2025,17 @@ const LANGS = {
     jdColJD:               'JD Requirement',
     jdColYou:              'Your Situation',
     jdColIssue:            'Gap',
-    tabFateShort:          'Fate',
+    tabFateShort:          'Cosmic Forces',
     fateSelectApp:         'Select an application',
-    fateDrawBtn:           'Draw',
-    fateDrawing:           'Divining...',
-    fateChooseHint:        'Choose a card to reveal your fate with this role',
-    fateChosenHint:        'Fate is sealed ✦',
+    fateDrawBtn:           'Receive Cosmic Letter',
+    fateDrawing:           'The universe is writing…',
+    fateChooseHint:        '',
+    fateChosenHint:        '',
     fateNoApps:            'No applications yet',
     fateSelectFirst:       'Please select an application first',
-    fateEmptyHint:         'Select an application to begin your reading',
+    fateEmptyHint:         'Select an experience to receive the universe\'s message',
 
-    tabHomeShort:          'Home',
+    tabHomeShort:          'Tech News',
     homeWelcomeDefault:    'Welcome back',
     homeStatTotal:         'Applied',
     homeStatOffer:         'Offers',
@@ -2411,13 +2533,10 @@ function renderHome() {
   const elTotal = document.getElementById('homeStat-total');
   const elOffer = document.getElementById('homeStat-offer');
   const elInter = document.getElementById('homeStat-interview');
-  const elPend  = document.getElementById('homeStat-pending');
   if (elTotal) elTotal.textContent = total;
   if (elOffer) elOffer.textContent = offers;
   if (elInter) elInter.textContent = interviews;
-  if (elPend)  elPend.textContent  = pending;
 
-  // Date line
   const dateEl = document.getElementById('homeDate');
   if (dateEl) {
     const now = new Date();
@@ -2427,7 +2546,77 @@ function renderHome() {
     );
   }
 
+  loadNewsFeed();
 }
+
+const NEWS_FEEDS = [
+  { key: 'anthropic', name: 'Anthropic',    url: 'https://www.anthropic.com/rss.xml',                                      color: '#c0392b' },
+  { key: 'verge',     name: 'The Verge AI', url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',      color: '#555048' },
+  { key: 'hn',        name: 'Hacker News',  url: 'https://hnrss.org/frontpage',                                            color: '#b7791f' },
+];
+
+let _newsCache = null;
+
+async function loadNewsFeed(force = false) {
+  if (_newsCache && !force) { renderNewsItems(_newsCache, _newsFilter); return; }
+  const area = document.getElementById('newsItemsArea');
+  if (!area) return;
+  area.innerHTML = '<div class="jd-loading"><span class="jd-spinner"></span>加载中…</div>';
+
+  const results = await Promise.allSettled(NEWS_FEEDS.map(async feed => {
+    const res = await apiFetch(`/rss-proxy?url=${encodeURIComponent(feed.url)}`);
+    if (!res || !res.ok) return [];
+    const text = await res.text();
+    return parseRSS(text, feed);
+  }));
+
+  _newsCache = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
+  _newsCache.sort((a, b) => b.ts - a.ts);
+  renderNewsItems(_newsCache);
+}
+
+function parseRSS(xmlText, feed) {
+  try {
+    const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
+    return Array.from(doc.querySelectorAll('item')).slice(0, 15).map(item => {
+      const title   = item.querySelector('title')?.textContent?.trim() || '';
+      const link    = item.querySelector('link')?.textContent?.trim() || '';
+      const pubDate = item.querySelector('pubDate')?.textContent?.trim() || '';
+      const raw     = item.querySelector('description')?.textContent || '';
+      const desc    = stripHtml(raw).replace(/\s+/g, ' ').trim().slice(0, 130);
+      const ts      = pubDate ? new Date(pubDate).getTime() : 0;
+      return { title, link, desc, ts, feed };
+    }).filter(i => i.title && i.link);
+  } catch { return []; }
+}
+
+function stripHtml(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  return d.textContent || '';
+}
+
+function renderNewsItems(items) {
+  const area = document.getElementById('newsItemsArea');
+  if (!area) return;
+  const list = items;
+  if (!list.length) {
+    area.innerHTML = '<div style="color:#aaa090;text-align:center;padding:40px 0;font-size:13px;">暂无内容</div>';
+    return;
+  }
+  area.innerHTML = list.map(item => {
+    const date = item.ts ? new Date(item.ts).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }) : '';
+    return `<a class="news-item" href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">
+      <div class="news-item-meta">
+        <span class="news-item-source" style="color:${item.feed.color}">${esc(item.feed.name)}</span>
+        ${date ? `<span class="news-item-date">${date}</span>` : ''}
+      </div>
+      <div class="news-item-title">${esc(item.title)}</div>
+      ${item.desc ? `<div class="news-item-desc">${esc(item.desc)}…</div>` : ''}
+    </a>`;
+  }).join('');
+}
+
 
 function toggleChat() {
   document.getElementById('chatSidebar').classList.toggle('hidden');
@@ -2905,6 +3094,14 @@ let _jdActiveTab = 'analyze';
 let _jdOptimizing = false;
 let _jdAnalyzing  = false;
 
+function toggleJdLeftPanel() {
+  const panel = document.getElementById('jdLeftPanel');
+  const btn = document.getElementById('jdLeftCollapseBtn');
+  const collapsed = panel.classList.toggle('collapsed');
+  btn.textContent = collapsed ? '›' : '‹';
+  btn.title = collapsed ? '展开面板' : '折叠面板';
+}
+
 function switchRightTab(tab) {
   _jdActiveTab = tab;
   const isAnalyze = tab === 'analyze';
@@ -3009,8 +3206,8 @@ async function sendResumeChat() {
   const instruction = input.value.trim();
   if (!instruction) return;
 
-  const currentResume = window._lastOptimizedResume;
-  if (!currentResume) return;
+  const isVisual = !!window._lastOptimizedResumeHtml;
+  if (!isVisual && !window._lastOptimizedResume) return;
 
   input.value = '';
   autoResizeChatInput(input);
@@ -3020,35 +3217,57 @@ async function sendResumeChat() {
   addChatMessage(instruction, 'user');
   const thinkingBubble = addChatMessage(t('resumeChatThinking'), 'ai typing');
 
-  const message = currentLang === 'zh'
-    ? `你是简历编辑助手。根据用户的修改指令，对以下简历进行调整。只输出修改后的完整简历（Markdown格式），不包含任何解释或说明。\n\n【修改指令】\n${instruction}\n\n【当前简历】\n${currentResume}`
-    : `You are a resume editor. Apply the user's instruction to the resume below. Output ONLY the complete updated resume in Markdown format — no explanations.\n\n[Instruction]\n${instruction}\n\n[Current Resume]\n${currentResume}`;
-
   try {
-    const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
-    const data = res ? await res.json() : null;
+    if (isVisual) {
+      const message = currentLang === 'zh'
+        ? `你是简历编辑助手。根据用户的修改指令，对以下 HTML 简历进行调整。直接输出修改后的完整 HTML 文档（从 <!DOCTYPE html> 开始），不包含任何解释。保持原有视觉设计，对修改过的文字用 <span class="opt-highlight"> 包裹（CSS：.opt-highlight { background: #fef08a; border-radius: 2px; }）。\n\n【修改指令】\n${instruction}\n\n【当前简历 HTML】\n${window._lastOptimizedResumeHtml}`
+        : `You are a resume editor. Apply the user's instruction to the HTML resume below. Output ONLY the complete updated HTML document starting with <!DOCTYPE html> — no explanations. Keep the original visual design. Wrap any changed text with <span class="opt-highlight"> (CSS: .opt-highlight { background: #fef08a; border-radius: 2px; }).\n\n[Instruction]\n${instruction}\n\n[Current Resume HTML]\n${window._lastOptimizedResumeHtml}`;
 
-    if (!res || !res.ok) {
-      thinkingBubble.textContent = data?.detail || t('resumeChatFailed');
-      thinkingBubble.classList.remove('typing');
-    } else {
-      const updated = data?.answer || '';
-      if (updated) {
-        window._lastOptimizedResume = updated;
-        document.getElementById('jdOptResultBox').innerHTML = renderResumeDoc(updated);
-        thinkingBubble.textContent = t('resumeChatDone');
-        document.getElementById('jdChatHistory').classList.add('collapsed');
-        document.getElementById('jdScrollArea').scrollTop = 0;
+      const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
+      const data = res ? await res.json() : null;
+      if (!res || !res.ok) {
+        thinkingBubble.textContent = data?.detail || t('resumeChatFailed');
       } else {
-        thinkingBubble.textContent = t('resumeChatFailed');
+        let html = (data?.answer || '').trim();
+        html = html.replace(/^```[a-z]*\n?/, '').replace(/\n?```$/, '');
+        if (html) {
+          window._lastOptimizedResumeHtml = html;
+          document.getElementById('jdOptResultBox').innerHTML =
+            `<iframe id="visualResumeFrame" style="width:100%;min-height:600px;border:none;border-radius:8px;" srcdoc="${html.replace(/"/g, '&quot;')}"></iframe>`;
+          thinkingBubble.textContent = t('resumeChatDone');
+          document.getElementById('jdChatHistory').classList.add('collapsed');
+          document.getElementById('jdScrollArea').scrollTop = 0;
+        } else {
+          thinkingBubble.textContent = t('resumeChatFailed');
+        }
       }
-      thinkingBubble.classList.remove('typing');
+    } else {
+      const message = currentLang === 'zh'
+        ? `你是简历编辑助手。根据用户的修改指令，对以下简历进行调整。只输出修改后的完整简历（Markdown格式），不包含任何解释或说明。\n\n【修改指令】\n${instruction}\n\n【当前简历】\n${window._lastOptimizedResume}`
+        : `You are a resume editor. Apply the user's instruction to the resume below. Output ONLY the complete updated resume in Markdown format — no explanations.\n\n[Instruction]\n${instruction}\n\n[Current Resume]\n${window._lastOptimizedResume}`;
+
+      const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
+      const data = res ? await res.json() : null;
+      if (!res || !res.ok) {
+        thinkingBubble.textContent = data?.detail || t('resumeChatFailed');
+      } else {
+        const updated = data?.answer || '';
+        if (updated) {
+          window._lastOptimizedResume = updated;
+          document.getElementById('jdOptResultBox').innerHTML = renderResumeDoc(updated);
+          thinkingBubble.textContent = t('resumeChatDone');
+          document.getElementById('jdChatHistory').classList.add('collapsed');
+          document.getElementById('jdScrollArea').scrollTop = 0;
+        } else {
+          thinkingBubble.textContent = t('resumeChatFailed');
+        }
+      }
     }
   } catch {
     thinkingBubble.textContent = t('resumeChatFailed');
-    thinkingBubble.classList.remove('typing');
   }
 
+  thinkingBubble.classList.remove('typing');
   input.disabled = false;
   sendBtn.disabled = false;
 }
@@ -3060,7 +3279,6 @@ async function optimizeResume() {
   if (_jdOptimizing) return;
   _jdOptimizing = true;
 
-  // Switch to optimize tab, show loading state
   switchRightTab('optimize');
   document.getElementById('jdChatHistory').innerHTML = '';
   document.getElementById('jdChatInput').value       = '';
@@ -3069,35 +3287,61 @@ async function optimizeResume() {
   const dlWrap    = document.getElementById('jdDlWrap');
   resultBox.className = '';
   resultBox.innerHTML = `<div class="doc-loading"><span class="jd-spinner"></span>${t('resumeGenerating')}</div>`;
+  window._lastOptimizedResumeHtml = null;
 
-  const message = currentLang === 'zh'
-    ? `你是一位资深职业顾问和简历撰写专家。请根据以下职位描述，为我生成一份完整、专业、经过优化的简历。直接输出简历正文（Markdown 格式），不需要任何解释、前言或评分。\n\n要求：\n- 保留原简历中真实的工作经历、教育背景等核心事实\n- 优化措辞，使用强有力的动词和量化成果\n- 针对 JD 中的关键词进行匹配优化\n- 结构清晰：个人信息 → 求职意向 → 专业技能 → 工作经历 → 项目经验 → 教育背景\n- 每条工作经历包含 3-5 个要点，使用 STAR 法则\n- 整体风格专业、简洁、有说服力\n\n【职位描述】\n${jd || '（未提供）'}\n\n【我的原简历】\n${resume}`
-    : `You are a senior career consultant and resume writing expert. Generate a complete, professional, optimized resume based on the job description below. Output ONLY the resume body in Markdown format — no explanations, no preamble, no scores.\n\nRequirements:\n- Preserve factual work history, education, and core details from the original resume\n- Optimize wording with strong action verbs and quantified achievements\n- Align keywords with the JD\n- Clear structure: Contact Info → Professional Summary → Skills → Work Experience → Projects → Education\n- Each role should have 3-5 bullet points using the STAR method\n- Professional, concise, and compelling tone\n\n[Job Description]\n${jd || '(not provided)'}\n\n[My Original Resume]\n${resume}`;
+  const useVisual = Array.isArray(window._resumePageImages) && window._resumePageImages.length > 0;
+  const useWord   = !useVisual && !!window._resumeWordB64;
 
   try {
-    const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
-    const data = res ? await res.json() : null;
+    let resOk = false, answer = '', html = '';
 
-    if (!res || !res.ok) {
-      resultBox.className = '';
-      resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${data?.detail || t('resumeChatFailed')}</div>`;
-    } else {
-      const answer = data?.answer || '';
-      if (answer) {
-        window._lastOptimizedResume = answer;
-        resultBox.className = 'resume-doc';
-        resultBox.innerHTML = renderResumeDoc(answer);
-        if (_jdActiveTab === 'optimize') {
-          dlWrap.style.display = 'flex';
-          document.getElementById('jdChatPanel').style.display = 'flex';
-          document.getElementById('jdChatInput').disabled    = false;
-          document.getElementById('jdChatSendBtn').disabled  = false;
-          autoResizeChatInput(document.getElementById('jdChatInput'));
-        }
+    if (useVisual || useWord) {
+      const endpoint = useVisual ? '/optimize-resume-visual' : '/optimize-word-resume';
+      const body     = useVisual
+        ? { images: window._resumePageImages, jd }
+        : { word_b64: window._resumeWordB64, jd };
+      const res  = await apiFetch(endpoint, { method: 'POST', body: JSON.stringify(body) });
+      const data = res ? await res.json() : null;
+      if (!res || !res.ok) {
+        resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${data?.detail || t('resumeChatFailed')}</div>`;
       } else {
-        resultBox.className = '';
-        resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${t('resumeChatFailed')}</div>`;
+        html = data?.html || '';
+        if (html) {
+          window._lastOptimizedResumeHtml = html;
+          resultBox.className = '';
+          resultBox.innerHTML = `<iframe id="visualResumeFrame" style="width:100%;min-height:600px;border:none;border-radius:8px;" srcdoc="${html.replace(/"/g, '&quot;')}"></iframe>`;
+          resOk = true;
+        } else {
+          resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${t('resumeChatFailed')}</div>`;
+        }
       }
+    } else {
+      const message = currentLang === 'zh'
+        ? `你是一位资深职业顾问和简历撰写专家。请根据以下职位描述，对我的简历进行优化。直接输出简历正文（Markdown 格式），不需要任何解释、前言或评分。\n\n要求：\n- 严格保留原简历的章节顺序和结构，不新增、不删除、不调换任何板块\n- 保留所有真实事实：公司名、职位、时间、学校、学历等不可虚构或更改\n- 数字和成果只能优化表达方式，不得自行添加原简历中没有的数字或比例\n- 输出语言与原简历保持一致：中文简历输出中文，英文简历输出英文，混排则保持混排\n- 优化措辞，使用强有力的动词，突出成果导向\n- 针对 JD 关键词调整表达，提升 ATS 命中率，关键词须自然融入语境，不得堆砌\n- 每条工作经历的要点数量与原简历保持一致\n- 总字数与原简历保持相近，不得大幅扩充内容\n- 整体风格专业、简洁、有说服力\n\n【职位描述】\n${jd || '（未提供）'}\n\n【我的原简历】\n${resume}`
+        : `You are a senior career consultant and resume writing expert. Optimize my resume based on the job description below. Output ONLY the resume body in Markdown format — no explanations, no preamble, no scores.\n\nRequirements:\n- Keep the exact section order and structure of the original resume — do not add, remove, or reorder any sections\n- Preserve all factual details: company names, job titles, dates, schools, degrees — never fabricate or alter them\n- Never invent numbers or percentages that do not exist in the original — only reframe existing ones more compellingly\n- Match the language of the original resume: Chinese in → Chinese out, English in → English out, mixed → keep mixed\n- Optimize wording with strong action verbs and an outcome-focused tone\n- Weave in JD keywords naturally to improve ATS hit rate — no keyword stuffing\n- Keep the same number of bullet points per role as the original\n- Keep total length close to the original — do not significantly expand the content\n- Professional, concise, and compelling tone\n\n[Job Description]\n${jd || '(not provided)'}\n\n[My Original Resume]\n${resume}`;
+      const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
+      const data = res ? await res.json() : null;
+      if (!res || !res.ok) {
+        resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${data?.detail || t('resumeChatFailed')}</div>`;
+      } else {
+        answer = data?.answer || '';
+        if (answer) {
+          window._lastOptimizedResume = answer;
+          resultBox.className = 'resume-doc';
+          resultBox.innerHTML = renderResumeDoc(answer);
+          resOk = true;
+        } else {
+          resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${t('resumeChatFailed')}</div>`;
+        }
+      }
+    }
+
+    if (resOk && _jdActiveTab === 'optimize') {
+      dlWrap.style.display = 'flex';
+      document.getElementById('jdChatPanel').style.display = 'flex';
+      document.getElementById('jdChatInput').disabled    = false;
+      document.getElementById('jdChatSendBtn').disabled  = false;
+      autoResizeChatInput(document.getElementById('jdChatInput'));
     }
   } catch {
     resultBox.className = '';
@@ -3132,6 +3376,16 @@ async function downloadResumeDocx() {
 }
 
 async function downloadResumePdf() {
+  if (window._lastOptimizedResumeHtml) {
+    const printHtml = window._lastOptimizedResumeHtml
+      .replace(/<span class="opt-highlight">([\s\S]*?)<\/span>/g, '$1');
+    const win = window.open('', '_blank');
+    win.document.write(printHtml);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 500);
+    return;
+  }
   const content = window._lastOptimizedResume || document.getElementById('jdOptResultBox').innerText;
   if (!content) {
     alert(currentLang === 'zh' ? '请先生成优化简历' : 'Please generate the optimized resume first');
@@ -3203,10 +3457,24 @@ async function handleResumeUpload(input) {
   const nameEl = document.getElementById('jdResumeFileName');
   nameEl.textContent = t('resumeUploading');
   nameEl.style.color = '#888070';
+  window._resumePageImages = null;
+  window._resumeWordB64 = null;
   try {
     let text = '';
+    const isDocx = file.name.endsWith('.docx') ||
+      file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-      text = await extractPdfText(file);
+      [text, window._resumePageImages] = await Promise.all([
+        extractPdfText(file),
+        extractPdfImages(file)
+      ]);
+    } else if (isDocx) {
+      const ab = await file.arrayBuffer();
+      const bytes = new Uint8Array(ab);
+      let binary = '';
+      bytes.forEach(b => binary += String.fromCharCode(b));
+      window._resumeWordB64 = btoa(binary);
+      text = await file.text();
     } else {
       text = await file.text();
     }
@@ -3255,6 +3523,26 @@ async function handleJDUpload(input) {
     nameEl.style.color = '#b0a99c';
   }
   input.value = '';
+}
+
+async function extractPdfImages(file) {
+  const pdfjsLib = window['pdfjs-dist/build/pdf'];
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const images = [];
+  const pageCount = Math.min(pdf.numPages, 3);
+  for (let i = 1; i <= pageCount; i++) {
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 1.5 });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    images.push(canvas.toDataURL('image/jpeg', 0.85).split(',')[1]);
+  }
+  return images;
 }
 
 async function extractPdfText(file) {
@@ -3373,13 +3661,13 @@ function renderJDResult(data) {
 
   const atsTags = ats.map(a => {
     const kw  = esc(typeof a === 'object' ? (a.kw || '') : String(a));
-    const hit = typeof a === 'object' ? !!a.hit : false;
-    return hit
-      ? `<span class="match-tag match-tag-hit">✓ ${kw}</span>`
-      : `<span class="match-tag" style="background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;">✕ ${kw}</span>`;
+    const hit = typeof a === 'object' ? a.hit : false;
+    if (hit === true)       return `<span class="match-tag match-tag-hit">✓ ${kw}</span>`;
+    if (hit === 'partial')  return `<span class="match-tag match-tag-partial">~ ${kw}</span>`;
+    return `<span class="match-tag" style="background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;">✕ ${kw}</span>`;
   }).join('');
 
-  const hitCount  = ats.filter(a => typeof a === 'object' && a.hit).length;
+  const hitCount  = ats.filter(a => typeof a === 'object' && (a.hit === true || a.hit === 'partial')).length;
   const atsDelay  = 0.08 + (matched.length ? 0.14 : 0) + (gaps.length ? 0.14 : 0);
 
   return `
@@ -3396,9 +3684,12 @@ function renderJDResult(data) {
       <div>
         <div class="jd-skills-title" style="color:#991b1b;">${t('jdSkillsMissing')}</div>
         <div>${gaps.map(g => {
-          const point = esc(typeof g === 'object' ? (g.point || '') : String(g));
-          const note  = typeof g === 'object' && g.note ? esc(g.note) : '';
-          return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #eef9f4;"><span class="match-tag match-tag-gap" style="flex-shrink:0;">✕ ${point}</span>${note ? `<span style="font-size:11px;color:#888070;line-height:1.4;">${note}</span>` : ''}</div>`;
+          const point    = esc(typeof g === 'object' ? (g.point || '') : String(g));
+          const note     = typeof g === 'object' && g.note ? esc(g.note) : '';
+          const isHard   = typeof g === 'object' && g.severity === 'hard';
+          const tagClass = isHard ? 'match-tag-gap' : 'match-tag-soft';
+          const icon     = isHard ? '✕' : '△';
+          return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #eef9f4;"><span class="match-tag ${tagClass}" style="flex-shrink:0;">${icon} ${point}</span>${note ? `<span style="font-size:11px;color:#888070;line-height:1.4;">${note}</span>` : ''}</div>`;
         }).join('')}</div>
       </div>
     </div>` : ''}
@@ -3432,8 +3723,8 @@ async function analyzeMatch() {
   resultSection.style.display = 'block';
 
   const message = currentLang === 'zh'
-    ? `你是资深招聘官，分析职位描述与简历的匹配度。所有输出必须用中文。严格只输出JSON，不输出任何其他内容：\n{"summary":"<2-3句自然语言，必须包含匹配度百分比，直接点出最关键的匹配或障碍，语气直接客观，例：匹配度为60%，核心缺口是行业经验。你在XX的背景和岗位要求的YY高度重合，但ZZ是硬门槛。>","matched":[{"point":"<匹配点，6字以内>","evidence":"<简历中的直接依据，10字以内>"},...],"gaps":[{"point":"<缺口，6字以内>","note":"<说明为何是缺口或影响，10字以内>"},...],"ats":[{"kw":"<JD关键词：技能/工具/证书/语言等>","hit":<true或false>},...]}\n\nmatched和gaps各自控制在5条以内，ats控制在12个以内。\n\n【职位描述】\n${jd}\n\n【我的简历】\n${resume}`
-    : `You are a senior recruiter. Analyze resume-JD fit. Output ONLY JSON, no other text:\n{"summary":"<2-3 sentences, must include a match percentage, call out the single most critical strength or blocker directly and specifically, e.g. 'Match rate is 70%. Your background in X aligns well with Y, but Z is a hard requirement you don't meet.'>","matched":[{"point":"<≤5 words>","evidence":"<≤8 words>"},...],"gaps":[{"point":"<≤5 words>","note":"<why it's a gap or its impact, ≤8 words>"},...],"ats":[{"kw":"<skill/tool/cert>","hit":<true/false>},...]}\n\nLimit matched and gaps to 5 items, ats to 12.\n\n[Job Description]\n${jd}\n\n[My Resume]\n${resume}`;
+    ? `你是资深招聘官，分析职位描述与简历的匹配度。所有输出必须用中文。严格只输出JSON，不含任何其他文字。\n\n匹配度计算：硬性要求满足率（70%权重）+ ATS关键词命中率（30%权重）。硬性要求指学历、证书、必要技能、明确年限等不可绕过的门槛。\n\n输出格式：\n{"summary":"<2-3句，含匹配度百分比及简要计算依据，直接点出最关键匹配点和最致命缺口，语气客观直接>","matched":[{"point":"<匹配点，8字以内>","evidence":"<简历原文依据，15字以内>"},...],"gaps":[{"point":"<缺口，8字以内>","note":"<为何是缺口及影响，15字以内>","severity":"hard或soft"},...],"ats":[{"kw":"<技能/工具/证书/语言>","hit":true或false或"partial"},...]}\n\n规则：matched≤5条，gaps≤5条，ats≤12个。\nseverity说明：hard=硬门槛（缺失基本无缘面试），soft=加分项缺失（有影响但不致命）。\nhit说明：true=简历中明确体现，"partial"=有相关经验但未完全匹配，false=完全缺失。\n\n【职位描述】\n${jd}\n\n【我的简历】\n${resume}`
+    : `You are a senior recruiter. Analyze resume-JD fit. Output ONLY valid JSON, no other text.\n\nScoring: match % = hard requirements met (70%) + ATS keyword hit rate (30%). Hard requirements are non-negotiable: degree, certifications, mandatory skills, years of experience explicitly required.\n\nOutput format:\n{"summary":"<2-3 sentences, include match % with brief rationale, name the top strength and the single most critical blocker>","matched":[{"point":"<≤6 words>","evidence":"<direct resume evidence, ≤12 words>"},...],"gaps":[{"point":"<≤6 words>","note":"<why it matters and its impact, ≤12 words>","severity":"hard or soft"},...],"ats":[{"kw":"<skill/tool/cert>","hit":true or false or "partial"},...]}\\n\nRules: matched≤5, gaps≤5, ats≤12.\nseverity: hard=dealbreaker (likely screened out without it), soft=nice-to-have (missing but not fatal).\nhit: true=explicitly in resume, "partial"=related but not exact match, false=absent.\n\n[Job Description]\n${jd}\n\n[My Resume]\n${resume}`;
 
   try {
     const res = await apiFetch('/analyze', {
@@ -3466,8 +3757,6 @@ async function analyzeMatch() {
 
 // ── Fate Tab ──
 
-let fateFlipped = false;
-
 function populateFateSelect() {
   const select = document.getElementById('fateAppSelect');
   if (!select) return;
@@ -3488,64 +3777,90 @@ async function drawFateCards() {
   const app = appCache.get(appId);
   if (!app) return;
 
-  const btn = document.getElementById('fateDrawBtn');
-  btn.disabled = true;
-  btn.innerHTML = `✦ ${t('fateDrawing')}`;
-  fateFlipped = false;
+  const envelope = document.getElementById('fateEnvelope');
+  if (!envelope) return;
+  envelope.classList.add('loading');
 
-  const cardsArea = document.getElementById('fateCardsArea');
-  cardsArea.innerHTML = `<div class="jd-loading"><span class="jd-spinner"></span>${t('fateDrawing')}</div>`;
-  document.getElementById('fateHint').textContent = '';
+  // 标签改为"收取中"
+  const label = envelope.querySelector('.fate-envelope-label');
+  if (label) label.textContent = t('fateDrawing');
+
+  // 撒星星粒子
+  const stars = ['✦','✧','·','✦','✧'];
+  const positions = [[20,80],[75,70],[50,90],[10,60],[85,85]];
+  stars.forEach((s, i) => {
+    const el = document.createElement('span');
+    el.className = 'fate-star-particle';
+    el.textContent = s;
+    el.style.left = positions[i][0] + '%';
+    el.style.bottom = positions[i][1] + '%';
+    el.style.animationDelay = (i * 0.35) + 's';
+    el.style.opacity = '0';
+    envelope.appendChild(el);
+  });
 
   const message = currentLang === 'zh'
-    ? `你是一位神秘的命运占卜师，擅长"答案之书"风格的神谕。请针对以下求职申请，生成4条风格各异的神谕短语——每条1到3句，语气深邃、诗意、若隐若现，像塔罗牌解读一般，暗示此申请的命运走向，可以鼓励、警示或点拨。严格只输出JSON数组，不含其他任何文字：["神谕1","神谕2","神谕3","神谕4"]\n\n申请信息：${app.company} — ${app.position}（${app.location || '未知地点'}，当前状态：${app.feedback || '待回复'}）`
-    : `You are a mystical oracle. For this job application, generate 4 distinct oracle messages in the style of the Book of Answers — each 1–3 sentences, poetic and cryptic, hinting at the fate of this application. Vary the tone: one encouraging, one cautionary, one reflective, one mysterious. Output ONLY a JSON array, no other text: ["oracle1","oracle2","oracle3","oracle4"]\n\nApplication: ${app.company} — ${app.position} (${app.location || 'unknown'}, status: ${app.feedback || 'no response'})`;
+    ? `你是宇宙本身。请以宇宙的视角，给这位正在求职的人写一封极简短的来信：2到3句话，每句话独立成行，语言凝练有力，富有哲学深度，可借鉴古今中外哲学家的思想意境（如庄子、王阳明、斯多葛、加缪、维特根斯坦等），但不要直接引用或点名。不许出现"——"或任何破折号。只输出正文，无称呼、无落款、无格式符号。\n\n申请信息：${app.company} — ${app.position}（${app.location || '未知地点'}，当前状态：${app.feedback || '待回复'}）`
+    : `You are the universe itself. Write an extremely brief cosmic letter to a job seeker: 2 to 3 sentences, each on its own line, condensed and philosophical, drawing on the spirit of thinkers across time and culture (Stoics, Zhuangzi, Camus, Wittgenstein, etc.) without naming or quoting them directly. No dashes, no em-dashes, no formatting symbols. Output only the body — no salutation, no signature.\n\nApplication: ${app.company} — ${app.position} (${app.location || 'unknown'}, status: ${app.feedback || 'no response'})`;
 
-  let messages;
+  let letter;
   try {
     const res  = await apiFetch('/analyze', { method:'POST', body: JSON.stringify({ message }) });
     const data = res ? await res.json() : null;
-    const raw  = (data?.answer || '').trim().replace(/^```json\s*/i,'').replace(/^```/,'').replace(/```$/,'').trim();
-    messages = JSON.parse(raw);
-    if (!Array.isArray(messages) || messages.length < 4) throw new Error();
+    letter = (data?.answer || '').trim().replace(/^"+|"+$/g, '');
+    if (!letter) throw new Error();
   } catch {
-    messages = currentLang === 'zh'
-      ? ['此门虽阖，命运之轮未曾停转。','前路迷雾重重，唯有前行方能拨云见日。','时机未到，非能力之缺。','顺势而为，答案自会在转角处显现。']
-      : ['This door closes only to open a better one.','The path is unclear — only forward reveals the light.','Timing, not talent, holds the key.','The answer waits for you just around the next bend.'];
+    letter = currentLang === 'zh'
+      ? '万物并作，吾以观复。\n此刻的停顿，是力量在聚集，而非消散。\n你所寻找的，也在寻找你。'
+      : 'The obstacle is the way.\nWhat resists you is also what shapes you.\nTrust the ground beneath the uncertainty.';
   }
 
-  renderFateCards(messages);
-  document.getElementById('fateHint').textContent = t('fateChooseHint');
-  btn.disabled = false;
-  btn.innerHTML = `✦ <span data-i18n="fateDrawBtn">${t('fateDrawBtn')}</span>`;
+  // 清理星星，翻盖动画
+  envelope.querySelectorAll('.fate-star-particle').forEach(el => el.remove());
+  envelope.classList.remove('loading');
+  envelope.classList.add('open');
+
+  // 翻盖完成后淡出信封，显示来信
+  setTimeout(() => renderCosmicLetter(letter), 750);
 }
 
-function renderFateCards(messages) {
-  const cardsArea = document.getElementById('fateCardsArea');
-  cardsArea.innerHTML = messages.slice(0,4).map((msg, i) => `
-    <div class="fate-card" onclick="flipFateCard(this,${i})">
-      <div class="fate-card-inner">
-        <div class="fate-card-back">
-          <div class="fate-card-back-star">✦</div>
-          <div class="fate-card-back-label">fate</div>
-        </div>
-        <div class="fate-card-front">
-          <div class="fate-card-front-icon">☽ ✦ ☾</div>
-          <div class="fate-card-message">${esc(msg)}</div>
-          <div class="fate-card-front-footer">destiny</div>
-        </div>
+function renderCosmicLetter(text) {
+  const area = document.getElementById('fateCardsArea');
+  area.style.transition = 'opacity 0.35s';
+  area.style.opacity = '0';
+  setTimeout(() => {
+    area.style.transition = '';
+    area.style.opacity = '';
+    area.innerHTML = `
+      <div class="cosmic-letter">
+        <div class="cosmic-seal">✦</div>
+        <div class="cosmic-from">${currentLang === 'zh' ? '来自宇宙的来信 · FROM THE COSMOS' : 'FROM THE COSMOS · 来自宇宙'}</div>
+        <hr class="cosmic-rule">
+        <div class="cosmic-body">${esc(text)}</div>
+        <div class="cosmic-sig">${currentLang === 'zh' ? '宇宙 · COSMOS' : 'COSMOS · 宇宙'}</div>
       </div>
-    </div>`).join('');
+      <button class="fate-reset-btn" onclick="resetEnvelope()">↩ ${currentLang === 'zh' ? '再收一封' : 'Receive another'}</button>`;
+  }, 350);
 }
 
-function flipFateCard(cardEl, index) {
-  if (fateFlipped) return;
-  fateFlipped = true;
-  cardEl.classList.add('flipped');
-  document.querySelectorAll('.fate-card').forEach((c, i) => {
-    if (i !== index) c.classList.add('faded');
-  });
-  document.getElementById('fateHint').textContent = t('fateChosenHint');
+function resetEnvelope() {
+  const area = document.getElementById('fateCardsArea');
+  area.style.transition = 'opacity 0.3s';
+  area.style.opacity = '0';
+  setTimeout(() => {
+    area.style.transition = '';
+    area.style.opacity = '';
+    area.innerHTML = `
+      <div class="fate-envelope" id="fateEnvelope" onclick="drawFateCards()">
+        <div class="fate-envelope-body">
+          <div class="fate-envelope-flap"></div>
+          <div class="fate-envelope-fold"></div>
+          <div class="fate-envelope-center">
+            <span class="fate-envelope-label">${t('fateDrawBtn')}</span>
+          </div>
+        </div>
+      </div>`;
+  }, 300);
 }
 
 // ── Init ──

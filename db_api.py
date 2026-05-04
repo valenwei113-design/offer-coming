@@ -18,6 +18,7 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from openai import OpenAI
 import anthropic
+import mammoth
 from typing import List, Optional
 import os
 import io
@@ -748,15 +749,15 @@ def chat(request: Request, req: ChatRequest, user_id: int = Depends(get_current_
     answer = explain_resp.choices[0].message.content.strip()
     return {"answer": answer, "sql": sql_or_reject}
 
-# ── Analyze endpoint (Claude Sonnet) ──
+# ── Analyze endpoint (Claude Sonnet 4.6) ──
 
 ANALYZE_DAILY_LIMIT = 100
 
 @app.post("/analyze")
 @limiter.limit("10/minute")
 def analyze(request: Request, req: AnalyzeRequest, user_id: int = Depends(get_current_user)):
-    if not DEEPSEEK_API_KEY:
-        raise HTTPException(status_code=501, detail="DEEPSEEK_API_KEY not configured")
+    if not ANTHROPIC_API_KEY:
+        raise HTTPException(status_code=501, detail="ANTHROPIC_API_KEY not configured")
 
     today = datetime.utcnow().date()
     conn = get_db()
@@ -776,13 +777,151 @@ def analyze(request: Request, req: AnalyzeRequest, user_id: int = Depends(get_cu
     if usage > ANALYZE_DAILY_LIMIT:
         raise HTTPException(status_code=429, detail="今日分析次数已达上限，明天再来吧")
 
-    client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
-    response = client.chat.completions.create(
-        model="deepseek-v4-flash",
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
         max_tokens=4096,
         messages=[{"role": "user", "content": req.message}]
     )
-    return {"answer": response.choices[0].message.content.strip()}
+    return {"answer": response.content[0].text.strip()}
+
+# ── Visual resume optimization endpoint ──
+
+class VisualResumeRequest(BaseModel):
+    images: List[str]  # base64 JPEG, max 3 pages
+    jd: str = ""
+
+@app.post("/optimize-resume-visual")
+@limiter.limit("5/minute")
+def optimize_resume_visual(request: Request, req: VisualResumeRequest, user_id: int = Depends(get_current_user)):
+    if not ANTHROPIC_API_KEY:
+        raise HTTPException(status_code=501, detail="ANTHROPIC_API_KEY not configured")
+
+    today = datetime.utcnow().date()
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO chat_usage (user_id, date, count) VALUES (%s, %s, 1) "
+            "ON CONFLICT (user_id, date) DO UPDATE SET count = chat_usage.count + 1 "
+            "RETURNING count",
+            (user_id, today)
+        )
+        usage = cur.fetchone()[0]
+        conn.commit()
+    finally:
+        cur.close(); conn.close()
+
+    if usage > ANALYZE_DAILY_LIMIT:
+        raise HTTPException(status_code=429, detail="今日分析次数已达上限，明天再来吧")
+
+    images = req.images[:3]
+    content = []
+    for i, img_b64 in enumerate(images):
+        content.append({"type": "text", "text": f"Resume page {i + 1}:"})
+        content.append({
+            "type": "image",
+            "source": {"type": "base64", "media_type": "image/jpeg", "data": img_b64}
+        })
+
+    jd_section = f"\n\n[Job Description]\n{req.jd}" if req.jd.strip() else ""
+    content.append({"type": "text", "text": f"""Analyze the visual design of this resume and generate an optimized version as a complete, self-contained HTML document.
+
+Requirements:
+- Replicate the exact visual design: layout, color scheme, typography, spacing, section structure
+- Preserve all factual content: company names, job titles, dates, schools, degrees — never fabricate
+- Optimize wording with strong action verbs and ATS keywords woven in naturally — no keyword stuffing
+- Keep the same section order and number of bullet points per role as the original
+- Do not invent numbers or percentages not present in the original
+- Match the language of the original resume exactly
+- Keep total content length similar to the original — do not significantly expand
+- HTML must be completely self-contained: all CSS in a <style> tag, no external dependencies
+- Must be print-ready: A4 page size, proper margins for clean PDF export via browser print
+- Highlight every word or phrase you changed or added by wrapping it with <span class="opt-highlight">...</span>. Add this CSS: .opt-highlight {{ background: #fef08a; border-radius: 2px; }}{jd_section}
+
+Output ONLY the complete HTML document starting with <!DOCTYPE html>. No explanations, no markdown code blocks."""})
+
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=8192,
+        messages=[{"role": "user", "content": content}]
+    )
+
+    html = response.content[0].text.strip()
+    html = re.sub(r'^```[a-z]*\n?', '', html)
+    html = re.sub(r'\n?```$', '', html)
+
+    return {"html": html}
+
+# ── Word resume optimization endpoint ──
+
+class WordResumeRequest(BaseModel):
+    word_b64: str
+    jd: str = ""
+
+@app.post("/optimize-word-resume")
+@limiter.limit("5/minute")
+def optimize_word_resume(request: Request, req: WordResumeRequest, user_id: int = Depends(get_current_user)):
+    if not ANTHROPIC_API_KEY:
+        raise HTTPException(status_code=501, detail="ANTHROPIC_API_KEY not configured")
+
+    today = datetime.utcnow().date()
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO chat_usage (user_id, date, count) VALUES (%s, %s, 1) "
+            "ON CONFLICT (user_id, date) DO UPDATE SET count = chat_usage.count + 1 "
+            "RETURNING count",
+            (user_id, today)
+        )
+        usage = cur.fetchone()[0]
+        conn.commit()
+    finally:
+        cur.close(); conn.close()
+
+    if usage > ANALYZE_DAILY_LIMIT:
+        raise HTTPException(status_code=429, detail="今日分析次数已达上限，明天再来吧")
+
+    try:
+        docx_bytes = base64.b64decode(req.word_b64)
+        result = mammoth.convert_to_html(io.BytesIO(docx_bytes))
+        word_html = result.value
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Word 解析失败: {str(e)}")
+
+    jd_section = f"\n\n[Job Description]\n{req.jd}" if req.jd.strip() else ""
+    prompt = f"""You are a professional resume designer and career consultant. Below is the HTML source of my resume (converted from Word), preserving the original formatting, colors, fonts, and structure.
+
+Generate a complete, self-contained HTML document that:
+- Replicates the visual design from the source HTML (colors, fonts, layout, spacing, section structure)
+- Preserves all factual content: company names, job titles, dates, schools, degrees — never fabricate or alter them
+- Optimizes wording with strong action verbs and ATS keywords woven in naturally — no keyword stuffing
+- Keeps the same section order and number of bullet points per role as the original
+- Does not invent numbers or percentages not present in the original
+- Matches the language of the original resume exactly
+- Keeps total content length similar to the original — do not significantly expand
+- HTML must be completely self-contained: all CSS in a <style> tag, no external dependencies
+- Must be print-ready: A4 page size, proper margins for PDF export via browser print
+- Highlight every word or phrase you changed or added by wrapping it with <span class="opt-highlight">...</span>. Add this CSS: .opt-highlight {{ background: #fef08a; border-radius: 2px; }}
+
+[Original Resume HTML]
+{word_html}{jd_section}
+
+Output ONLY the complete HTML document starting with <!DOCTYPE html>. No explanations, no markdown code blocks."""
+
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=8192,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    html = response.content[0].text.strip()
+    html = re.sub(r'^```[a-z]*\n?', '', html)
+    html = re.sub(r'\n?```$', '', html)
+    return {"html": html}
 
 # ── Resume export helpers ──
 
@@ -1032,6 +1171,28 @@ def _pdf_write_formatted(pdf, text: str, font_name: str, has_bold: bool):
     pdf.ln()
 
 # ── Public endpoints ──
+
+@app.get("/rss-proxy")
+def rss_proxy(url: str, user_id: int = Depends(get_current_user)):
+    from urllib.parse import urlparse
+    import urllib.request
+    ALLOWED_HOSTS = {
+        'www.anthropic.com',
+        'www.theverge.com',
+        'hnrss.org',
+        'www.latent.space',
+        'www.technologyreview.com',
+    }
+    parsed = urlparse(url)
+    if parsed.hostname not in ALLOWED_HOSTS or parsed.scheme not in ('http', 'https'):
+        raise HTTPException(status_code=400, detail="URL not allowed")
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (compatible; JobTrackBot/1.0)'})
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            content = resp.read()
+        return Response(content=content, media_type="application/xml; charset=utf-8")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Failed to fetch feed: {e}")
 
 @app.get("/health")
 def health():
