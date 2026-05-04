@@ -926,7 +926,78 @@
     }
     .export-item:hover { background: #f8f6f2; }
 
-    @media (max-width: 768px) { .sidebar { display: none; } }
+    /* ── Mobile bottom nav ── */
+    .mobile-nav {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 56px; z-index: 100;
+      background: #f8f6f2; border-top: 1px solid #dcd8d0;
+    }
+    .mobile-nav-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 3px;
+      background: none; border: none; cursor: pointer;
+      font-size: 11px; color: #888070; font-weight: 500;
+      padding: 0; font-family: inherit;
+      transition: color 0.15s; -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-nav-btn.active { color: #0d0d0d; font-weight: 700; }
+    .mobile-nav-icon { font-size: 20px; line-height: 1; }
+
+    @media (max-width: 768px) {
+      /* Sidebar hidden, bottom nav shown */
+      .sidebar { display: none; }
+      .mobile-nav { display: flex; }
+      .main { padding-bottom: 56px; }
+
+      /* Home tab */
+      #tab-home > div:first-child { padding: 16px 16px 12px; }
+
+      /* Tracker toolbar: allow wrap */
+      #tab-tracker > div:first-child { flex-wrap: wrap; padding: 10px 12px 0; gap: 8px; }
+      .search-input { max-width: 100%; flex: 1 1 120px; min-width: 0; }
+      .ask-ai-btn { font-size: 12px; padding: 7px 10px; }
+
+      /* Hide table header, use card layout */
+      .list-header { display: none; }
+      .list-area { padding: 6px 12px 14px; gap: 8px; }
+
+      /* App card: 3-row mobile layout via flex-wrap */
+      .app-card { flex-wrap: wrap; padding: 10px 12px; align-items: flex-start; }
+      .col-num      { display: none; }
+      .col-company  { order: 1; flex: 1 1 0; min-width: 0; font-size: 13px; padding-right: 6px; padding-bottom: 2px; }
+      .col-feedback { order: 2; flex: 0 0 auto; padding-right: 4px; padding-bottom: 2px; }
+      .del-btn      { order: 3; flex: 0 0 auto; padding-bottom: 2px; }
+      .col-position { order: 4; flex: 0 0 calc(100% - 60px); min-width: 0; font-size: 12px; white-space: normal; padding: 1px 0 3px; }
+      .col-link     { order: 5; flex: 0 0 auto; padding: 1px 0 3px 6px; }
+      .col-date     { order: 6; flex: 1 1 0; font-size: 11px; color: #aaa090; padding: 1px 0 0; }
+      .col-location { display: none; }
+      .col-worktype { display: none; }
+      .col-notes    { display: none; }
+
+      /* JD Match: stack panels */
+      #tab-jdmatch { flex-direction: column !important; overflow-y: auto !important; overflow-x: hidden !important; }
+      #jdLeftPanel  { width: 100% !important; flex-shrink: 0; border-right: none !important; border-bottom: 1px solid #dcd8d0; min-height: 320px; max-height: 50vh; }
+      #jdRightPanel { flex: 1; min-height: 300px; }
+      #jdLeftCollapseBtn { display: none !important; }
+
+      /* Fate envelope */
+      .fate-envelope { width: min(94vw, 400px); height: min(59vw, 250px); }
+      .cosmic-letter { padding: 24px 18px; width: 95%; }
+
+      /* Modal */
+      .modal { padding: 20px 16px; width: 96vw; }
+
+      /* Admin box */
+      .admin-box { max-height: 95vh; }
+
+      /* Resume doc */
+      .resume-doc { padding: 28px 16px; }
+    }
+
+    @media (max-width: 400px) {
+      .col-position { flex: 0 0 calc(100% - 40px); }
+    }
 
     /* ── Home tab ── */
     .sidebar-tab[data-tab="home"]:hover,
@@ -1079,6 +1150,26 @@
       </nav>
 
     </aside>
+
+    <!-- Mobile bottom nav -->
+    <nav class="mobile-nav">
+      <button class="mobile-nav-btn active" data-tab="home" onclick="switchMainTab('home')">
+        <span class="mobile-nav-icon">🏠</span>
+        <span data-i18n="tabHomeShort"></span>
+      </button>
+      <button class="mobile-nav-btn" data-tab="jdmatch" onclick="switchMainTab('jdmatch')">
+        <span class="mobile-nav-icon">📄</span>
+        <span data-i18n="tabJdMatchShort"></span>
+      </button>
+      <button class="mobile-nav-btn" data-tab="tracker" onclick="switchMainTab('tracker')">
+        <span class="mobile-nav-icon">📋</span>
+        <span data-i18n="tabTrackerShort"></span>
+      </button>
+      <button class="mobile-nav-btn" data-tab="fate" onclick="switchMainTab('fate')">
+        <span class="mobile-nav-icon">✨</span>
+        <span data-i18n="tabFateShort"></span>
+      </button>
+    </nav>
 
     <!-- Main -->
     <main class="main">
@@ -2265,7 +2356,7 @@ function cardHtml(app, isNew = false, num = 0) {
       <span class="col-location">${esc(app.location) || '—'}</span>
       <span class="col-worktype">${app.work_type ? (WORKTYPE_KEY[app.work_type] ? t(WORKTYPE_KEY[app.work_type]) : esc(app.work_type)) : '—'}</span>
       <span class="col-feedback">${badgeHtml(app.feedback)}</span>
-      <span style="width:36px;flex-shrink:0;font-size:13px;cursor:default;text-align:center;" onclick="event.stopPropagation()" title="${app.notes ? esc(app.notes) : ''}">${app.notes ? '📝' : ''}</span>
+      <span class="col-notes" style="width:36px;flex-shrink:0;font-size:13px;cursor:default;text-align:center;" onclick="event.stopPropagation()" title="${app.notes ? esc(app.notes) : ''}">${app.notes ? '📝' : ''}</span>
       <button class="del-btn" onclick="event.stopPropagation(); deleteApplication(${app.id})" title="✕">✕</button>
     </div>`;
 }
@@ -3063,6 +3154,9 @@ function switchMainTab(name) {
 
   document.querySelectorAll('.sidebar-tab').forEach(el => el.classList.remove('active'));
   document.querySelector(`.sidebar-tab[data-tab="${name}"]`).classList.add('active');
+  document.querySelectorAll('.mobile-nav-btn').forEach(el => el.classList.remove('active'));
+  const mobileBtn = document.querySelector(`.mobile-nav-btn[data-tab="${name}"]`);
+  if (mobileBtn) mobileBtn.classList.add('active');
 
   if (name === 'home') renderHome();
   if (name === 'jdmatch') {
