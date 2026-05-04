@@ -3805,7 +3805,7 @@ async function drawFateCards() {
 
   let letter;
   try {
-    const res  = await apiFetch('/analyze', { method:'POST', body: JSON.stringify({ message }) });
+    const res  = await apiFetch('/analyze', { method:'POST', body: JSON.stringify({ message, type: 'fate' }) });
     const data = res ? await res.json() : null;
     letter = (data?.answer || '').trim().replace(/^"+|"+$/g, '');
     if (!letter) throw new Error();

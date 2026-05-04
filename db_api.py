@@ -207,6 +207,7 @@ class ChatMessage(BaseModel):
 
 class AnalyzeRequest(BaseModel):
     message: str
+    type: str = ""
 
 class ExportRequest(BaseModel):
     content: str
@@ -776,6 +777,16 @@ def analyze(request: Request, req: AnalyzeRequest, user_id: int = Depends(get_cu
 
     if usage > ANALYZE_DAILY_LIMIT:
         raise HTTPException(status_code=429, detail="今日分析次数已达上限，明天再来吧")
+
+    if req.type == "fate":
+        ds_client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
+        resp = ds_client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[{"role": "user", "content": req.message}],
+            temperature=0.9,
+            max_tokens=512,
+        )
+        return {"answer": resp.choices[0].message.content.strip()}
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     response = client.messages.create(

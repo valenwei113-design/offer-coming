@@ -27,8 +27,8 @@
 
 | 层级 | 技术 |
 |------|------|
-| 大模型（对话） | DeepSeek V4 Flash（via API） |
-| 大模型（分析 / 简历 / 宇宙来信） | Claude Sonnet 4.6（via Anthropic API） |
+| 大模型（对话 / 宇宙来信） | DeepSeek V4 Flash / DeepSeek V3（via API） |
+| 大模型（简历分析 / 生成） | Claude Sonnet 4.6（via Anthropic API） |
 | 大模型（图像识别） | Claude Haiku 4.5（via Anthropic API） |
 | 后端 | Python FastAPI + uvicorn |
 | 数据库 | PostgreSQL |
@@ -57,7 +57,7 @@
     │       └── POST /export-resume →  python-docx / fpdf2 生成文件流
     │
     ├── 宇宙力量（Tab: fate）
-    │       └── POST /analyze  →  Claude Sonnet 4.6（哲学风格宇宙来信）
+    │       └── POST /analyze  →  DeepSeek V3（哲学风格宇宙来信）
     │
     └── 管理员后台（adminView，仅 admin）
             └── GET/POST/DELETE /admin/*
@@ -266,8 +266,8 @@ open job-agent.html
 
 | Layer | Technology |
 |-------|-----------|
-| LLM (Chat) | DeepSeek V4 Flash (via API) |
-| LLM (Analysis / Resume / Cosmic letter) | Claude Sonnet 4.6 (via Anthropic API) |
+| LLM (Chat / Cosmic letter) | DeepSeek V4 Flash / DeepSeek V3 (via API) |
+| LLM (Resume analysis / generation) | Claude Sonnet 4.6 (via Anthropic API) |
 | LLM (Image Recognition) | Claude Haiku 4.5 (via Anthropic API) |
 | Backend | Python FastAPI + uvicorn |
 | Database | PostgreSQL |
@@ -296,7 +296,7 @@ User Browser
     │       └── POST /export-resume →  python-docx / fpdf2 file stream
     │
     ├── Cosmic Forces Tab (fate)
-    │       └── POST /analyze  →  Claude Sonnet 4.6 (philosophical cosmic letter)
+    │       └── POST /analyze  →  DeepSeek V3 (philosophical cosmic letter)
     │
     └── Admin View (admin only)
             └── GET/POST/DELETE /admin/*
