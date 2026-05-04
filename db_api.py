@@ -781,7 +781,7 @@ def analyze(request: Request, req: AnalyzeRequest, user_id: int = Depends(get_cu
     if req.type == "fate":
         ds_client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
         resp = ds_client.chat.completions.create(
-            model="deepseek-chat",
+            model="deepseek-v4-flash",
             messages=[{"role": "user", "content": req.message}],
             temperature=0.9,
             max_tokens=512,
