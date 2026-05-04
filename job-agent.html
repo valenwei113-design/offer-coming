@@ -3800,14 +3800,14 @@ async function drawFateCards() {
   });
 
   const message = currentLang === 'zh'
-    ? `你是宇宙本身。请以宇宙的视角，给这位正在求职的人写一封极简短的来信：2到3句话，每句话独立成行，语言凝练有力，富有哲学深度，可借鉴古今中外哲学家的思想意境（如庄子、王阳明、斯多葛、加缪、维特根斯坦等），但不要直接引用或点名。不许出现"——"或任何破折号。只输出正文，无称呼、无落款、无格式符号。\n\n申请信息：${app.company} — ${app.position}（${app.location || '未知地点'}，当前状态：${app.feedback || '待回复'}）`
-    : `You are the universe itself. Write an extremely brief cosmic letter to a job seeker: 2 to 3 sentences, each on its own line, condensed and philosophical, drawing on the spirit of thinkers across time and culture (Stoics, Zhuangzi, Camus, Wittgenstein, etc.) without naming or quoting them directly. No dashes, no em-dashes, no formatting symbols. Output only the body — no salutation, no signature.\n\nApplication: ${app.company} — ${app.position} (${app.location || 'unknown'}, status: ${app.feedback || 'no response'})`;
+    ? `你是宇宙本身。请以宇宙的视角，给这位正在求职的人写一封极简短的来信：2到3句话，连续成段，语言凝练有力，富有哲学深度，可借鉴古今中外哲学家的思想意境（如庄子、王阳明、斯多葛、加缪、维特根斯坦等），但不要直接引用或点名。不许出现"——"或任何破折号。只输出正文，无称呼、无落款、无格式符号、无换行。\n\n申请信息：${app.company} — ${app.position}（${app.location || '未知地点'}，当前状态：${app.feedback || '待回复'}）`
+    : `You are the universe itself. Write an extremely brief cosmic letter to a job seeker: 2 to 3 sentences in a single flowing paragraph, condensed and philosophical, drawing on the spirit of thinkers across time and culture (Stoics, Zhuangzi, Camus, Wittgenstein, etc.) without naming or quoting them directly. No dashes, no em-dashes, no formatting symbols, no line breaks. Output only the body — no salutation, no signature.\n\nApplication: ${app.company} — ${app.position} (${app.location || 'unknown'}, status: ${app.feedback || 'no response'})`;
 
   let letter;
   try {
     const res  = await apiFetch('/analyze', { method:'POST', body: JSON.stringify({ message, type: 'fate' }) });
     const data = res ? await res.json() : null;
-    letter = (data?.answer || '').trim().replace(/^"+|"+$/g, '');
+    letter = (data?.answer || '').trim().replace(/^"+|"+$/g, '').replace(/\n+/g, ' ');
     if (!letter) throw new Error();
   } catch {
     letter = currentLang === 'zh'
