@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS job_applications (
     link         TEXT,
     feedback     TEXT,
     work_type    TEXT,
+    notes        TEXT,
     user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 

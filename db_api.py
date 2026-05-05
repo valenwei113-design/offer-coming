@@ -3,7 +3,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, FileResponse, HTMLResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 import psycopg2
@@ -1204,6 +1204,15 @@ def rss_proxy(url: str, user_id: int = Depends(get_current_user)):
         return Response(content=content, media_type="application/xml; charset=utf-8")
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Failed to fetch feed: {e}")
+
+@app.get("/")
+async def index():
+    html_path = os.path.join(os.path.dirname(__file__), "job-agent.html")
+    try:
+        with open(html_path, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    except FileNotFoundError:
+        return HTMLResponse(content="<h1>Frontend not found</h1>", status_code=404)
 
 @app.get("/health")
 def health():
