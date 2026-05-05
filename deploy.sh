@@ -92,6 +92,8 @@ echo "    服务已启动"
 # ── 5. 配置 Nginx ────────────────────────────────────
 echo ">>> [6/7] 配置 Nginx..."
 sudo cp job-agent.html /var/www/html/index.html
+sudo cp backup.sh "${APP_DIR}/backup.sh"
+sudo chmod +x "${APP_DIR}/backup.sh"
 
 sudo tee /etc/nginx/sites-available/${SERVICE_NAME} > /dev/null <<'EOF'
 server {
@@ -117,9 +119,8 @@ sudo nginx -t
 sudo systemctl enable --now nginx
 sudo systemctl reload nginx
 
-# 备份 cron（每天 03:00 执行，保留 7 天）
-SCRIPT_PATH="$(realpath "$0")"
-BACKUP_CRON="0 3 * * * cd $(dirname "$SCRIPT_PATH") && bash backup.sh >> ${APP_DIR}/logs/backup.log 2>&1"
+# 备份 cron（每天 03:00 执行，保留 7 天；引用 APP_DIR 稳定路径）
+BACKUP_CRON="0 3 * * * bash ${APP_DIR}/backup.sh >> ${APP_DIR}/logs/backup.log 2>&1"
 (crontab -l 2>/dev/null | grep -v "backup.sh"; echo "$BACKUP_CRON") | crontab -
 echo "    Nginx 配置完成，备份 cron 已设置（每天 03:00）"
 
@@ -134,7 +135,7 @@ fi
 
 echo ""
 echo "=== 部署完成 ==="
-VM_IP=$(curl -s ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
+VM_IP=$(hostname -I | awk '{print $1}')
 echo "前端:  http://${VM_IP}"
 echo "后端:  http://${VM_IP}:8000/health"
 echo ""
