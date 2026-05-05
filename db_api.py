@@ -626,10 +626,32 @@ Return ONLY a JSON object with these exact keys (use null for any missing or unc
 }
 Return only the JSON object, no markdown, no explanation."""
 
+PARSE_IMAGE_DAILY_LIMIT = 30
+
 @app.post("/applications/parse-image")
-async def parse_image(file: UploadFile = File(...), user_id: int = Depends(get_current_user)):
+@limiter.limit("10/minute")
+async def parse_image(request: Request, file: UploadFile = File(...), user_id: int = Depends(get_current_user)):
     if not ANTHROPIC_API_KEY:
         raise HTTPException(status_code=501, detail="ANTHROPIC_API_KEY not configured")
+
+    today = datetime.utcnow().date()
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO chat_usage (user_id, date, count) VALUES (%s, %s, 1) "
+            "ON CONFLICT (user_id, date) DO UPDATE SET count = chat_usage.count + 1 "
+            "RETURNING count",
+            (user_id, today)
+        )
+        usage = cur.fetchone()[0]
+        conn.commit()
+    finally:
+        cur.close(); conn.close()
+
+    if usage > PARSE_IMAGE_DAILY_LIMIT:
+        raise HTTPException(status_code=429, detail=f"今日图片识别已达上限（{PARSE_IMAGE_DAILY_LIMIT} 次），明天再来吧")
+
     image_data = await file.read()
     if len(image_data) > 10 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="Image too large (max 10MB)")
