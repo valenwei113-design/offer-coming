@@ -179,7 +179,7 @@
 - /rss-proxy 域名白名单，仅允许指定 RSS 源，需登录才可访问
 - CORS 白名单控制
 - 全局错误日志写入 logs/error.log
-- 每日凌晨 2 点自动备份数据库，保留 7 天
+- 每日凌晨 3 点自动备份数据库，保留 7 天
 
 ---
 
@@ -191,9 +191,10 @@
 ├── job-agent.html     # 前端单页应用
 ├── schema.sql         # 数据库建表语句
 ├── requirements.txt   # Python 依赖
-├── .env.example       # 环境变量模板
+├── deploy.sh          # 生产环境一键部署脚本
 ├── backup.sh          # 数据库备份脚本
 ├── import_jobs.py     # 历史数据导入脚本
+├── .env.example       # 环境变量模板
 ├── .env               # 密钥配置（不进 git）
 ├── logs/              # 运行日志
 └── backups/           # 数据库备份文件
@@ -211,8 +212,8 @@
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/valenwei113-design/JobApplyAgent.git
-cd JobApplyAgent
+git clone https://github.com/valenwei113-design/offer-coming.git
+cd offer-coming
 
 # 2. 安装依赖
 pip install -r requirements.txt
@@ -230,6 +231,15 @@ mkdir -p logs
 # 6. 启动服务
 uvicorn db_api:app --host 0.0.0.0 --port 8000
 ```
+
+### 生产环境部署
+
+```bash
+# 将项目上传到服务器后，一键部署
+bash deploy.sh
+```
+
+部署脚本会自动完成：系统依赖安装、PostgreSQL 配置、Python 虚拟环境创建、systemd 服务注册、Nginx 前端托管、防火墙配置、数据库每日自动备份。
 
 ### 本地开发
 
@@ -418,7 +428,7 @@ User Browser
 - /rss-proxy domain allowlist, login required — cannot be used as open proxy
 - CORS allowlist
 - Global error logging to logs/error.log
-- Automated daily DB backup at 2 AM, retained for 7 days
+- Automated daily DB backup at 3 AM, retained for 7 days
 
 ---
 
@@ -430,9 +440,10 @@ User Browser
 ├── job-agent.html     # Frontend (single-page app)
 ├── schema.sql         # Database schema
 ├── requirements.txt   # Python dependencies
-├── .env.example       # Environment variable template
+├── deploy.sh          # One-click production deployment script
 ├── backup.sh          # Database backup script
 ├── import_jobs.py     # Historical data import script
+├── .env.example       # Environment variable template
 ├── .env               # Secrets (excluded from git)
 ├── logs/              # Runtime logs
 └── backups/           # Database backup files
@@ -450,8 +461,8 @@ User Browser
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/valenwei113-design/JobApplyAgent.git
-cd JobApplyAgent
+git clone https://github.com/valenwei113-design/offer-coming.git
+cd offer-coming
 
 # 2. Install dependencies
 pip install -r requirements.txt
@@ -469,6 +480,15 @@ mkdir -p logs
 # 6. Start server
 uvicorn db_api:app --host 0.0.0.0 --port 8000
 ```
+
+### Production Deployment
+
+```bash
+# Upload project to server, then one-click deploy
+bash deploy.sh
+```
+
+The deploy script automates: system dependencies, PostgreSQL setup, Python venv, systemd service, Nginx frontend hosting, firewall, and daily database backups.
 
 ### Local Development
 
