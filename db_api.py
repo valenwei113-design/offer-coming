@@ -146,7 +146,7 @@ DB_CONFIG = {
 SECRET_KEY = os.environ["SECRET_KEY"]
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_DAYS = 30
-CHAT_DAILY_LIMIT = 50
+CHAT_DAILY_LIMIT = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 bearer = HTTPBearer()
@@ -752,7 +752,7 @@ def chat(request: Request, req: ChatRequest, user_id: int = Depends(get_current_
 
 # ── Analyze endpoint (Claude Sonnet 4.6) ──
 
-ANALYZE_DAILY_LIMIT = 100
+ANALYZE_DAILY_LIMIT = 30
 
 @app.post("/analyze")
 @limiter.limit("10/minute")
