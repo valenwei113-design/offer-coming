@@ -1274,3 +1274,15 @@ async def index():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+STATIC_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".ico", ".css", ".js", ".pdf"}
+
+@app.get("/{filename}")
+async def serve_static(filename: str):
+    _, ext = os.path.splitext(filename)
+    if ext.lower() not in STATIC_EXTENSIONS:
+        raise HTTPException(status_code=404)
+    file_path = os.path.join(os.path.dirname(__file__), filename)
+    if not os.path.exists(file_path) or not os.path.isfile(file_path):
+        raise HTTPException(status_code=404)
+    return FileResponse(file_path)
