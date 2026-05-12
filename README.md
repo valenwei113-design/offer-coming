@@ -16,7 +16,7 @@
 **核心功能**：
 - **科技资讯**：登录后首屏，显示投递统计 + 聚合 AI 科技资讯（Anthropic / The Verge AI / Hacker News RSS）
 - **投递记录**：在线新增、编辑、删除申请记录；图片/截图 AI 自动识别填写；搜索、排序、分页；AI 对话查询数据
-- **简历优化**：上传简历 + JD，AI 匹配分析（含评分）；一键生成针对性简历；AI 对话精调简历；导出 Word / PDF / Markdown / TXT
+- **简历优化**：上传简历（PDF / Word / 图片）+ JD（PDF / TXT / Word / 图片），AI 匹配分析（含评分）；一键生成针对性简历；AI 对话精调简历；导出 Word / PDF
 - **宇宙力量**：选择一条申请记录，点击信封，AI 以宇宙视角生成哲学风格来信
 - **管理员后台**：用户管理、邀请码管理、反馈查看、数据概览
 - **双语支持**：中文 / English 一键切换
@@ -27,9 +27,9 @@
 
 | 层级 | 技术 |
 |------|------|
-| 大模型（对话 / 宇宙来信） | DeepSeek V4 Flash（via API） |
-| 大模型（简历分析 / 生成） | Claude Sonnet 4.6（via Anthropic API） |
-| 大模型（图像识别） | Claude Haiku 4.5（via Anthropic API） |
+| 大模型（对话 / 数据查询 / 宇宙来信） | DeepSeek V4 Pro（via API） |
+| 大模型（简历分析 / 生成） | DeepSeek V4 Pro（via API） |
+| 大模型（视觉简历优化 / 图片解析） | Qwen VL Max / Plus（via 阿里云百炼） |
 | 后端 | Python FastAPI + uvicorn |
 | 数据库 | PostgreSQL |
 | 前端 | 纯 HTML + Chart.js |
@@ -49,15 +49,18 @@
     │
     ├── 投递记录（Tab: tracker）
     │       ├── GET/POST/PUT/DELETE /applications
-    │       ├── POST /applications/parse-image  →  Claude Haiku Vision
-    │       └── POST /chat  →  DeepSeek V4 Flash（NL→SQL→NL）
+    │       ├── POST /applications/parse-image  →  Qwen VL Plus（图片识别）
+    │       └── POST /chat  →  DeepSeek V4 Pro（NL→SQL→NL）
     │
     ├── 简历优化（Tab: jdmatch）
-    │       ├── POST /analyze      →  Claude Sonnet 4.6（匹配分析 / 简历生成）
-    │       └── POST /export-resume →  python-docx / fpdf2 生成文件流
+    │       ├── POST /parse-jd             →  Qwen VL Plus（图片）/ mammoth（Word）
+    │       ├── POST /analyze              →  DeepSeek V4 Pro（匹配分析）
+    │       ├── POST /optimize-resume-visual →  Qwen VL Max（PDF/图片简历优化）
+    │       ├── POST /optimize-word-resume   →  DeepSeek V4 Pro（Word 简历优化）
+    │       └── POST /export-resume        →  python-docx / fpdf2 生成文件流
     │
     ├── 宇宙力量（Tab: fate）
-    │       └── POST /analyze  →  DeepSeek V4 Flash（哲学风格宇宙来信）
+    │       └── POST /analyze  →  DeepSeek V4 Pro（哲学风格宇宙来信）
     │
     └── 管理员后台（adminView，仅 admin）
             └── GET/POST/DELETE /admin/*
@@ -134,9 +137,12 @@
 | POST | /applications | 新增申请记录 |
 | PUT | /applications/{id} | 编辑申请记录 |
 | DELETE | /applications/{id} | 删除申请记录 |
-| POST | /applications/parse-image | 上传图片，AI 识别并返回字段 JSON |
-| POST | /chat | AI 对话查询（每日限 50 次，每分钟限 30 次） |
-| POST | /analyze | 简历分析 / 生成 / 宇宙来信（每日限 100 次，每分钟限 10 次） |
+| POST | /applications/parse-image | 上传图片，AI 识别并返回字段 JSON（每日限 30 次） |
+| POST | /parse-jd | 上传 Word / 图片，提取 JD 纯文本（每分钟限 20 次） |
+| POST | /chat | AI 对话查询（每日限 30 次，每分钟限 30 次） |
+| POST | /analyze | 简历分析 / 宇宙来信（每日限 30 次，每分钟限 10 次） |
+| POST | /optimize-resume-visual | PDF / 图片简历优化，返回 HTML（每分钟限 5 次） |
+| POST | /optimize-word-resume | Word 简历优化，返回 HTML（每分钟限 5 次） |
 | POST | /export-resume | 导出简历文件（docx / pdf） |
 | GET | /rss-proxy | RSS 代理（白名单域名透传，需登录） |
 | GET | /stats/summary | 总数、地点数 |
@@ -162,9 +168,9 @@
 
 - **登录 / 注册**：首次访问显示认证界面；注册需邀请码；登录后 token 存入 localStorage，30 天有效
 - **科技资讯**：登录后默认进入；显示今日日期、投递总数 / 面试中 / 录用三项统计；聚合 Anthropic、The Verge AI、Hacker News 三个 RSS 源，按时间倒序展示，点击直达原文，支持手动刷新
-- **简历优化**：上传或粘贴简历（PDF / TXT / MD）；上传或粘贴 JD；匹配分析（评分 + 技能匹配 / 缺口 / ATS 关键词）；一键优化简历（AI 生成针对性版本）；左侧面板可折叠以扩展操作区；AI 对话精调简历内容；导出 Word / PDF / Markdown / TXT
+- **简历优化**：上传简历（PDF / Word / 图片）；上传或粘贴 JD（PDF / TXT / Word / 图片）；匹配分析（评分 + 技能匹配 / 缺口 / ATS 关键词）；一键优化简历（AI 生成针对性 HTML 版本）；左侧面板可折叠；AI 对话精调简历内容；导出 Word / PDF
 - **投递记录**：图片 / 截图 AI 自动识别新增；手动新增；搜索、排序、分页（每页 30 条）；点击记录编辑；备注字段；AI 对话查询数据
-- **宇宙力量**：选择一条申请记录，点击中央信封触发翻盖动画，AI 以宇宙视角生成 2-3 句哲学风格来信（参考古今中外哲学思想）；可重复获取
+- **宇宙力量**：选择一条申请记录，点击中央信封触发翻盖动画，AI 以宇宙视角生成 2-3 句哲学风格来信；可重复获取
 - **管理员后台**：用户管理（删除、切换权限、重置密码）、邀请码管理、用户反馈查看、数据概览
 
 ---
@@ -172,10 +178,10 @@
 ## 七、安全
 
 - JWT token 鉴权（SECRET_KEY 存于 .env，不进 git）
-- DeepSeek / Anthropic API Key 存于 .env，不进 git
+- DeepSeek / Qwen API Key 存于 .env，不进 git
 - 邀请码注册控制，一码一次
 - SQL 安全检查：仅允许 SELECT，强制 user_id 过滤，禁止访问非授权表
-- /chat 每用户每日 50 次 / 每分钟 30 次；/analyze 每用户每日 100 次 / 每分钟 10 次
+- /chat 每用户每日 30 次 / 每分钟 30 次；/analyze 每用户每日 30 次 / 每分钟 10 次；图片解析每日 30 次
 - /rss-proxy 域名白名单，仅允许指定 RSS 源，需登录才可访问
 - CORS 白名单控制
 - 全局错误日志写入 logs/error.log
@@ -220,7 +226,7 @@ pip install -r requirements.txt
 
 # 3. 配置环境变量
 cp .env.example .env
-# 编辑 .env，填入 DEEPSEEK_API_KEY、ANTHROPIC_API_KEY、SECRET_KEY 和数据库信息
+# 编辑 .env，填入 DEEPSEEK_API_KEY、QWEN_API_KEY、SECRET_KEY 和数据库信息
 
 # 4. 建表
 psql -U postgres -d jobsdb -f schema.sql
@@ -265,7 +271,7 @@ open job-agent.html
 **Key Features**:
 - **Tech News**: Default landing page after login — shows application stats and aggregated AI tech news (Anthropic / The Verge AI / Hacker News RSS)
 - **Applications**: Add, edit, delete records; AI image/screenshot parsing; search, sort, paginate; AI chat to query your data
-- **Resume**: Upload resume + JD, AI match analysis (with score); one-click AI resume optimization; collapsible left panel; AI chat to refine the resume; export as Word / PDF / Markdown / TXT
+- **Resume**: Upload resume (PDF / Word / Image) + JD (PDF / TXT / Word / Image), AI match analysis (with score); one-click AI resume optimization; AI chat to refine the resume; export as Word / PDF
 - **Cosmic Forces**: Select an application, click the envelope, receive a philosophical letter written from the universe's perspective
 - **Admin Panel**: User management, invite codes, feedback viewer, stats overview
 - **Bilingual**: Chinese / English toggle
@@ -276,9 +282,9 @@ open job-agent.html
 
 | Layer | Technology |
 |-------|-----------|
-| LLM (Chat / Cosmic letter) | DeepSeek V4 Flash (via API) |
-| LLM (Resume analysis / generation) | Claude Sonnet 4.6 (via Anthropic API) |
-| LLM (Image Recognition) | Claude Haiku 4.5 (via Anthropic API) |
+| LLM (Chat / Data query / Cosmic letter) | DeepSeek V4 Pro (via API) |
+| LLM (Resume analysis / generation) | DeepSeek V4 Pro (via API) |
+| LLM (Visual resume optimization / Image parsing) | Qwen VL Max / Plus (via Alibaba Cloud) |
 | Backend | Python FastAPI + uvicorn |
 | Database | PostgreSQL |
 | Frontend | Vanilla HTML + Chart.js |
@@ -298,15 +304,18 @@ User Browser
     │
     ├── Applications Tab
     │       ├── GET/POST/PUT/DELETE /applications
-    │       ├── POST /applications/parse-image  →  Claude Haiku Vision
-    │       └── POST /chat  →  DeepSeek V4 Flash (NL→SQL→NL)
+    │       ├── POST /applications/parse-image  →  Qwen VL Plus (image recognition)
+    │       └── POST /chat  →  DeepSeek V4 Pro (NL→SQL→NL)
     │
     ├── Resume Tab
-    │       ├── POST /analyze       →  Claude Sonnet 4.6 (match analysis / resume generation)
-    │       └── POST /export-resume →  python-docx / fpdf2 file stream
+    │       ├── POST /parse-jd               →  Qwen VL Plus (image) / mammoth (Word)
+    │       ├── POST /analyze                →  DeepSeek V4 Pro (match analysis)
+    │       ├── POST /optimize-resume-visual →  Qwen VL Max (PDF/image resume)
+    │       ├── POST /optimize-word-resume   →  DeepSeek V4 Pro (Word resume)
+    │       └── POST /export-resume          →  python-docx / fpdf2 file stream
     │
     ├── Cosmic Forces Tab (fate)
-    │       └── POST /analyze  →  DeepSeek V4 Flash (philosophical cosmic letter)
+    │       └── POST /analyze  →  DeepSeek V4 Pro (philosophical cosmic letter)
     │
     └── Admin View (admin only)
             └── GET/POST/DELETE /admin/*
@@ -383,9 +392,12 @@ User Browser
 | POST | /applications | Create application |
 | PUT | /applications/{id} | Update application |
 | DELETE | /applications/{id} | Delete application |
-| POST | /applications/parse-image | Upload image, AI extracts fields as JSON |
-| POST | /chat | AI chat query (50/day, 30/min per user) |
-| POST | /analyze | Resume match / generation / cosmic letter (100/day, 10/min per user) |
+| POST | /applications/parse-image | Upload image, AI extracts fields as JSON (30/day) |
+| POST | /parse-jd | Upload Word / image, extract JD plain text (20/min) |
+| POST | /chat | AI chat query (30/day, 30/min per user) |
+| POST | /analyze | Resume match analysis / cosmic letter (30/day, 10/min per user) |
+| POST | /optimize-resume-visual | Optimize PDF/image resume, returns HTML (5/min) |
+| POST | /optimize-word-resume | Optimize Word resume, returns HTML (5/min) |
 | POST | /export-resume | Export resume file (docx or pdf) |
 | GET | /rss-proxy | RSS proxy (allowlisted domains only, login required) |
 | GET | /stats/summary | Total applications & locations |
@@ -410,10 +422,10 @@ User Browser
 ## 6. Frontend Features
 
 - **Auth**: Shown on first visit; registration requires an invite code; JWT stored in localStorage for 30 days
-- **Tech News**: Default tab after login — today's date, 3 stat cards (total / interviews / offers); aggregated RSS feed from Anthropic, The Verge AI, and Hacker News sorted by recency; click any item to open original article; manual refresh button
-- **Resume**: Upload or paste resume (PDF / TXT / MD); upload or paste JD; match analysis with score, skill gaps, and ATS keywords; collapsible left panel for more workspace; one-click AI resume optimization; AI chat to refine the output; export as Word / PDF / Markdown / TXT
+- **Tech News**: Default tab after login — today's date, 3 stat cards (total / interviews / offers); aggregated RSS from Anthropic, The Verge AI, and Hacker News sorted by recency; click to open original article; manual refresh
+- **Resume**: Upload resume (PDF / Word / Image); upload or paste JD (PDF / TXT / Word / Image); match analysis with score, skill gaps, and ATS keywords; one-click AI resume optimization (generates HTML); collapsible left panel; AI chat to refine output; export as Word / PDF
 - **Applications**: AI image/screenshot auto-fill; manual add; search, sort by date, paginate (30/page); inline edit; notes field; AI chat to query data
-- **Cosmic Forces**: Select an application, click the centered envelope to trigger an opening animation; receive a 2–3 sentence philosophical letter written from the universe's perspective, drawing on philosophical traditions worldwide; repeat as desired
+- **Cosmic Forces**: Select an application, click the centered envelope to trigger an opening animation; receive a 2–3 sentence philosophical letter from the universe's perspective; repeat as desired
 - **Admin Panel**: User management (delete, toggle admin, reset password), invite code management, feedback list, stats overview
 
 ---
@@ -421,10 +433,10 @@ User Browser
 ## 7. Security
 
 - JWT authentication (SECRET_KEY in .env, excluded from git)
-- DeepSeek / Anthropic API keys in .env, excluded from git
+- DeepSeek / Qwen API keys in .env, excluded from git
 - Invite-code gated registration, one use per code
 - SQL safety: SELECT only, mandatory user_id filter, blocked unauthorized tables
-- Rate limits: /chat 50/day & 30/min; /analyze 100/day & 10/min per user
+- Rate limits: /chat 30/day & 30/min; /analyze 30/day & 10/min; image parse 30/day per user
 - /rss-proxy domain allowlist, login required — cannot be used as open proxy
 - CORS allowlist
 - Global error logging to logs/error.log
@@ -469,7 +481,7 @@ pip install -r requirements.txt
 
 # 3. Configure environment
 cp .env.example .env
-# Edit .env — fill in DEEPSEEK_API_KEY, ANTHROPIC_API_KEY, SECRET_KEY, and DB credentials
+# Edit .env — fill in DEEPSEEK_API_KEY, QWEN_API_KEY, SECRET_KEY, and DB credentials
 
 # 4. Initialize database
 psql -U postgres -d jobsdb -f schema.sql
