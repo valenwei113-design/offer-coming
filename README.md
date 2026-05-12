@@ -126,7 +126,7 @@
 ### 公开接口（无需 token）
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| POST | /auth/register | 注册（需邀请码），返回 JWT token |
+| POST | /auth/register | 注册（邮箱 + 密码），返回 JWT token |
 | POST | /auth/login | 登录，返回 JWT token |
 | GET | /health | 健康检查 |
 
@@ -166,7 +166,7 @@
 
 ## 六、前端功能
 
-- **登录 / 注册**：首次访问显示认证界面；注册需邀请码；登录后 token 存入 localStorage，30 天有效
+- **登录 / 注册**：首次访问显示认证界面；邮箱 + 密码即可注册；登录后 token 存入 localStorage，30 天有效
 - **科技资讯**：登录后默认进入；显示今日日期、投递总数 / 面试中 / 录用三项统计；聚合 Anthropic、The Verge AI、Hacker News 三个 RSS 源，按时间倒序展示，点击直达原文，支持手动刷新
 - **简历优化**：上传简历（PDF / Word / 图片）；上传或粘贴 JD（PDF / TXT / Word / 图片）；匹配分析（评分 + 技能匹配 / 缺口 / ATS 关键词）；一键优化简历（AI 生成针对性 HTML 版本）；左侧面板可折叠；AI 对话精调简历内容；导出 Word / PDF
 - **投递记录**：图片 / 截图 AI 自动识别新增；手动新增；搜索、排序、分页（每页 30 条）；点击记录编辑；备注字段；AI 对话查询数据
@@ -179,7 +179,7 @@
 
 - JWT token 鉴权（SECRET_KEY 存于 .env，不进 git）
 - DeepSeek / Qwen API Key 存于 .env，不进 git
-- 邀请码注册控制，一码一次
+- 开放注册（邮箱 + 密码），管理员可选择性启用邀请码
 - SQL 安全检查：仅允许 SELECT，强制 user_id 过滤，禁止访问非授权表
 - /chat 每用户每日 30 次 / 每分钟 30 次；/analyze 每用户每日 30 次 / 每分钟 10 次；图片解析每日 30 次
 - /rss-proxy 域名白名单，仅允许指定 RSS 源，需登录才可访问
@@ -245,7 +245,7 @@ uvicorn db_api:app --host 0.0.0.0 --port 8000
 bash deploy.sh
 ```
 
-部署脚本会自动完成：系统依赖安装、PostgreSQL 配置、Python 虚拟环境创建、systemd 服务注册、Nginx 前端托管、防火墙配置、数据库每日自动备份。
+部署脚本会自动完成：系统依赖安装、PostgreSQL 配置、Python 虚拟环境创建、systemd 服务注册、防火墙配置、数据库每日自动备份。
 
 ### 本地开发
 
@@ -381,7 +381,7 @@ User Browser
 ### Public Endpoints (no token required)
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | /auth/register | Register with invite code, returns JWT |
+| POST | /auth/register | Register with email + password, returns JWT |
 | POST | /auth/login | Login, returns JWT |
 | GET | /health | Health check |
 
@@ -421,7 +421,7 @@ User Browser
 
 ## 6. Frontend Features
 
-- **Auth**: Shown on first visit; registration requires an invite code; JWT stored in localStorage for 30 days
+- **Auth**: Shown on first visit; email + password registration; JWT stored in localStorage for 30 days
 - **Tech News**: Default tab after login — today's date, 3 stat cards (total / interviews / offers); aggregated RSS from Anthropic, The Verge AI, and Hacker News sorted by recency; click to open original article; manual refresh
 - **Resume**: Upload resume (PDF / Word / Image); upload or paste JD (PDF / TXT / Word / Image); match analysis with score, skill gaps, and ATS keywords; one-click AI resume optimization (generates HTML); collapsible left panel; AI chat to refine output; export as Word / PDF
 - **Applications**: AI image/screenshot auto-fill; manual add; search, sort by date, paginate (30/page); inline edit; notes field; AI chat to query data
@@ -434,7 +434,7 @@ User Browser
 
 - JWT authentication (SECRET_KEY in .env, excluded from git)
 - DeepSeek / Qwen API keys in .env, excluded from git
-- Invite-code gated registration, one use per code
+- Open registration (email + password), optional invite codes for admin
 - SQL safety: SELECT only, mandatory user_id filter, blocked unauthorized tables
 - Rate limits: /chat 30/day & 30/min; /analyze 30/day & 10/min; image parse 30/day per user
 - /rss-proxy domain allowlist, login required — cannot be used as open proxy
@@ -500,7 +500,7 @@ uvicorn db_api:app --host 0.0.0.0 --port 8000
 bash deploy.sh
 ```
 
-The deploy script automates: system dependencies, PostgreSQL setup, Python venv, systemd service, Nginx frontend hosting, firewall, and daily database backups.
+The deploy script automates: system dependencies, PostgreSQL setup, Python venv, systemd service, firewall, and daily database backups.
 
 ### Local Development
 
