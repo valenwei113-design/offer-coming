@@ -542,24 +542,9 @@
       font-size: 12px; font-weight: 500; margin: 3px 4px 3px 0; line-height: 1.4;
     }
     .match-tag-hit  { background: #d1fae5; color: #065f46; }
+    .match-tag-ats-hit { background: #dbeafe; color: #1e40af; }
     .match-tag-gap  { background: #fee2e2; color: #991b1b; }
     .match-tag-soft { background: #fef3c7; color: #92400e; }
-    .match-tag-partial { background: #fef9c3; color: #713f12; }
-
-    /* ── Resume document preview ── */
-    .resume-doc {
-      background: #fff; border-radius: 4px; max-width: 680px; margin: 0 auto;
-      padding: 52px 60px; font-size: 13.5px; line-height: 1.8; color: #1a1a1a;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1px 6px rgba(0,0,0,0.06);
-    }
-    .resume-doc h1 { font-size: 22px; font-weight: 700; text-align: center; margin: 0 0 4px; letter-spacing: 0.2px; }
-    .resume-doc h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; border-bottom: 1.5px solid #1a1a1a; padding-bottom: 4px; margin: 24px 0 10px; }
-    .resume-doc h3 { font-size: 13.5px; font-weight: 600; margin: 14px 0 2px; }
-    .resume-doc p { margin: 4px 0; }
-    .resume-doc ul { padding-left: 18px; margin: 4px 0 8px; }
-    .resume-doc li { margin: 3px 0; }
-    .resume-doc strong { font-weight: 600; color: #000; }
-    .resume-doc hr { border: none; border-top: 1px solid #e8e4de; margin: 16px 0; }
     .doc-loading { display:flex;align-items:center;gap:10px;color:#888070;font-size:13px;padding:60px 0;justify-content:center; }
 
     /* ── JD left panel collapse ── */
@@ -599,26 +584,7 @@
     #jdChatSendBtn:hover { background:#2a2420; }
     #jdChatSendBtn:disabled { background:#c0b8b0; cursor:not-allowed; }
 
-    /* ── Markdown result ── */
-    .md-result { font-size:13px; color:#1a1610; line-height:1.8; }
-    .md-result h1,.md-result h2,.md-result h3 {
-      font-weight:700; color:#0d0d0d; margin:16px 0 6px;
-    }
-    .md-result h1 { font-size:16px; }
-    .md-result h2 { font-size:14px; }
-    .md-result h3 { font-size:13px; }
-    .md-result p { margin:6px 0; }
-    .md-result ul,.md-result ol { padding-left:20px; margin:6px 0; }
-    .md-result li { margin:3px 0; }
-    .md-result strong { font-weight:600; color:#0d0d0d; }
-    .md-result hr { border:none; border-top:1px solid #dcd8d0; margin:14px 0; }
-    .md-result .score-badge {
-      display:inline-block; padding:4px 14px; border-radius:20px;
-      font-size:22px; font-weight:700; color:#fff;
-      margin:4px 0 12px; line-height:1.4;
-    }
-    .md-result .tag-hit  { display:inline-block; background:#d1fae5; color:#065f46; border-radius:4px; padding:1px 7px; font-size:12px; margin:2px 3px 2px 0; }
-    .md-result .tag-miss { display:inline-block; background:#fee2e2; color:#991b1b; border-radius:4px; padding:1px 7px; font-size:12px; margin:2px 3px 2px 0; }
+
 
     .jd-empty-hint {
       display: flex; flex-direction: column; align-items: center;
@@ -962,15 +928,8 @@
       .list-header { display: none; }
       .list-area { padding: 6px 12px 14px; gap: 8px; }
 
-      /* App card: 3-row mobile layout via flex-wrap */
-      .app-card { flex-wrap: wrap; padding: 10px 12px; align-items: flex-start; }
-      .col-num      { display: none; }
-      .col-company  { order: 1; flex: 1 1 0; min-width: 0; font-size: 13px; padding-right: 6px; padding-bottom: 2px; }
-      .col-feedback { order: 2; flex: 0 0 auto; padding-right: 4px; padding-bottom: 2px; }
-      .del-btn      { order: 3; flex: 0 0 auto; padding-bottom: 2px; }
-      .col-position { order: 4; flex: 0 0 calc(100% - 60px); min-width: 0; font-size: 12px; white-space: normal; padding: 1px 0 3px; }
-      .col-link     { order: 5; flex: 0 0 auto; padding: 1px 0 3px 6px; }
-      .col-date     { order: 6; flex: 1 1 0; font-size: 11px; color: #aaa090; padding: 1px 0 0; }
+      /* App card: single-row, hide less critical columns */
+      .app-card { padding: 8px 10px; }
       .col-location { display: none; }
       .col-worktype { display: none; }
       .col-notes    { display: none; }
@@ -991,12 +950,10 @@
       /* Admin box */
       .admin-box { max-height: 95vh; }
 
-      /* Resume doc */
-      .resume-doc { padding: 28px 16px; }
     }
 
     @media (max-width: 400px) {
-      .col-position { flex: 0 0 calc(100% - 40px); }
+      .list-area { overflow-x: auto; }
     }
 
     /* ── Home tab ── */
@@ -1263,11 +1220,11 @@
           <div style="padding:20px 20px 12px;flex-shrink:0;">
             <div style="display:flex;align-items:baseline;gap:8px;">
               <div class="jd-col-label" data-i18n="jdLabelResume"></div>
-              <span style="font-size:11px;color:#b0a898;">PDF · TXT · MD</span>
+              <span style="font-size:11px;color:#b0a898;" data-i18n="resumeFormatHint"></span>
             </div>
             <div class="jd-save-row" style="margin-top:6px;">
               <button class="jd-sm-btn" onclick="document.getElementById('jdResumeFile').click()" data-i18n="resumeUploadBtn"></button>
-              <input type="file" id="jdResumeFile" accept=".pdf,.txt,.md" style="display:none" onchange="handleResumeUpload(this)">
+              <input type="file" id="jdResumeFile" accept=".pdf,.docx,image/jpeg,image/png,image/webp" style="display:none" onchange="handleResumeUpload(this)">
               <span id="jdResumeFileName" style="font-size:11px;color:#888070;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></span>
               <button class="jd-sm-btn" onclick="clearResume()" data-i18n="jdClearResumeBtn"></button>
             </div>
@@ -1277,11 +1234,11 @@
           <div style="flex:1;display:flex;flex-direction:column;padding:0 20px 20px;min-height:0;">
             <div style="display:flex;align-items:baseline;gap:8px;">
               <div class="jd-col-label" data-i18n="jdLabelJD"></div>
-              <span style="font-size:11px;color:#b0a898;">PDF · TXT · MD</span>
+              <span style="font-size:11px;color:#b0a898;" data-i18n="jdFormatHint"></span>
             </div>
             <div class="jd-save-row" style="margin-top:6px;">
               <button class="jd-sm-btn" onclick="document.getElementById('jdJDFile').click()" data-i18n="resumeUploadBtn"></button>
-              <input type="file" id="jdJDFile" accept=".pdf,.txt,.md" style="display:none" onchange="handleJDUpload(this)">
+              <input type="file" id="jdJDFile" accept=".pdf,.txt,.docx,image/jpeg,image/png,image/webp" style="display:none" onchange="handleJDUpload(this)">
               <span id="jdJDFileName" style="font-size:11px;color:#888070;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></span>
               <button class="jd-sm-btn" onclick="clearJD()" data-i18n="jdClearResumeBtn"></button>
             </div>
@@ -1336,8 +1293,6 @@
             <div id="jdDlWrap" style="display:none;padding:12px 20px;gap:10px;flex-wrap:wrap;">
               <button class="jd-sm-btn" onclick="downloadResumeDocx()" style="background:#2b5a2b;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;">📄 Word (.docx)</button>
               <button class="jd-sm-btn" onclick="downloadResumePdf()" style="background:#8b0000;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;">📑 PDF (.pdf)</button>
-              <button class="jd-sm-btn" onclick="downloadResumeMd()" style="background:#5a4a8b;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;">📝 Markdown (.md)</button>
-              <button class="jd-sm-btn" onclick="downloadResumeTxt()" style="background:#555048;color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;">📃 Text (.txt)</button>
             </div>
           </div>
 
@@ -1829,7 +1784,9 @@ const LANGS = {
     jdSaveResumeBtn:       '保存简历',
     jdClearResumeBtn:      '删除',
     resumeUploadBtn:       '上传文件',
-    resumeUploadHint:      '点击上方「上传文件」按钮上传简历（支持 PDF / TXT / MD 格式）',
+    resumeFormatHint:      'PDF · Word · 图片',
+    jdFormatHint:          'PDF · TXT · Word · 图片',
+    resumeUploadHint:      '点击上方「上传文件」按钮上传简历（支持 PDF / Word / 图片）',
     resumeUploading:       '解析中...',
     resumeUploadErr:       '解析失败，请手动粘贴',
     jdLabelJD:             '职位描述',
@@ -1862,9 +1819,6 @@ const LANGS = {
     jdAtsHit:              '命中',
     jdScoreLabel:          '匹配度',
     jdConclusion:          '结论',
-    jdColJD:               'JD要求',
-    jdColYou:              '你的情况',
-    jdColIssue:            '差距说明',
     tabFateShort:          '宇宙力量',
     fateSelectApp:         '选择一段求职经历',
     fateDrawBtn:           '收取宇宙来信',
@@ -2079,7 +2033,9 @@ const LANGS = {
     jdSaveResumeBtn:       'Save Resume',
     jdClearResumeBtn:      'Delete',
     resumeUploadBtn:       'Upload',
-    resumeUploadHint:      'Click "Upload" above to upload your resume (PDF / TXT / MD supported)',
+    resumeFormatHint:      'PDF · Word · Image',
+    jdFormatHint:          'PDF · TXT · Word · Image',
+    resumeUploadHint:      'Click "Upload" above to upload your resume (PDF / Word / Image supported)',
     resumeUploading:       'Parsing...',
     resumeUploadErr:       'Parse failed, please paste manually',
     jdLabelJD:             'Job Description',
@@ -2112,9 +2068,6 @@ const LANGS = {
     jdAtsHit:              'matched',
     jdScoreLabel:          'Match score',
     jdConclusion:          'Verdict',
-    jdColJD:               'JD Requirement',
-    jdColYou:              'Your Situation',
-    jdColIssue:            'Gap',
     tabFateShort:          'Cosmic Forces',
     fateSelectApp:         'Select an application',
     fateDrawBtn:           'Receive Cosmic Letter',
@@ -2361,9 +2314,13 @@ function cardHtml(app, isNew = false, num = 0) {
 }
 
 async function apiFetch(path, options = {}) {
+  const isFormData = options.body instanceof FormData;
+  const baseHeaders = isFormData
+    ? { 'Authorization': `Bearer ${getToken()}` }
+    : authHeader();
   const res = await fetch(`${API}${path}`, {
     ...options,
-    headers: { ...authHeader(), ...(options.headers || {}) }
+    headers: { ...baseHeaders, ...(options.headers || {}) }
   });
   if (res.status === 401) { logout(); return null; }
   return res;
@@ -3203,7 +3160,7 @@ function switchRightTab(tab) {
   document.getElementById('jdTabBtnAnalyze').classList.toggle('active', isAnalyze);
   document.getElementById('jdTabBtnOptimize').classList.toggle('active', !isAnalyze);
 
-  const hasResume = !!window._lastOptimizedResume;
+  const hasResume = !!window._lastOptimizedResumeHtml;
 
   if (isAnalyze) {
     const hasAnalysis = document.getElementById('jdResultSection').dataset.loaded === '1';
@@ -3229,44 +3186,6 @@ function switchRightTab(tab) {
   }
 }
 
-function renderResumeDoc(text) {
-  const lines = text.split('\n');
-  let html = '';
-  let inUl = false;
-
-  const escInline = s => s
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-
-  for (const raw of lines) {
-    const line = raw.trimEnd();
-    if (!line.trim()) {
-      if (inUl) { html += '</ul>'; inUl = false; }
-      continue;
-    }
-    if (/^# (.+)/.test(line)) {
-      if (inUl) { html += '</ul>'; inUl = false; }
-      html += `<h1>${escInline(line.slice(2))}</h1>`;
-    } else if (/^## (.+)/.test(line)) {
-      if (inUl) { html += '</ul>'; inUl = false; }
-      html += `<h2>${escInline(line.slice(3))}</h2>`;
-    } else if (/^### (.+)/.test(line)) {
-      if (inUl) { html += '</ul>'; inUl = false; }
-      html += `<h3>${escInline(line.slice(4))}</h3>`;
-    } else if (/^[-*•] (.+)/.test(line)) {
-      if (!inUl) { html += '<ul>'; inUl = true; }
-      html += `<li>${escInline(line.replace(/^[-*•] /,''))}</li>`;
-    } else if (/^---+$/.test(line.trim())) {
-      if (inUl) { html += '</ul>'; inUl = false; }
-      html += '<hr>';
-    } else {
-      if (inUl) { html += '</ul>'; inUl = false; }
-      html += `<p>${escInline(line)}</p>`;
-    }
-  }
-  if (inUl) html += '</ul>';
-  return html;
-}
 
 function autoResizeChatInput(el) {
   el.style.height = 'auto';
@@ -3297,7 +3216,7 @@ async function sendResumeChat() {
   if (!instruction) return;
 
   const isVisual = !!window._lastOptimizedResumeHtml;
-  if (!isVisual && !window._lastOptimizedResume) return;
+  if (!isVisual) return;
 
   input.value = '';
   autoResizeChatInput(input);
@@ -3308,49 +3227,26 @@ async function sendResumeChat() {
   const thinkingBubble = addChatMessage(t('resumeChatThinking'), 'ai typing');
 
   try {
-    if (isVisual) {
-      const message = currentLang === 'zh'
-        ? `你是简历编辑助手。根据用户的修改指令，对以下 HTML 简历进行调整。直接输出修改后的完整 HTML 文档（从 <!DOCTYPE html> 开始），不包含任何解释。保持原有视觉设计，对修改过的文字用 <span class="opt-highlight"> 包裹（CSS：.opt-highlight { background: #fef08a; border-radius: 2px; }）。\n\n【修改指令】\n${instruction}\n\n【当前简历 HTML】\n${window._lastOptimizedResumeHtml}`
-        : `You are a resume editor. Apply the user's instruction to the HTML resume below. Output ONLY the complete updated HTML document starting with <!DOCTYPE html> — no explanations. Keep the original visual design. Wrap any changed text with <span class="opt-highlight"> (CSS: .opt-highlight { background: #fef08a; border-radius: 2px; }).\n\n[Instruction]\n${instruction}\n\n[Current Resume HTML]\n${window._lastOptimizedResumeHtml}`;
+    const message = currentLang === 'zh'
+      ? `你是简历编辑助手。根据用户的修改指令，对以下 HTML 简历进行调整。直接输出修改后的完整 HTML 文档（从 <!DOCTYPE html> 开始），不包含任何解释。保持原有视觉设计，对修改过的文字用 <span class="opt-highlight"> 包裹（CSS：.opt-highlight { background: #fef08a; border-radius: 2px; }）。\n\n【修改指令】\n${instruction}\n\n【当前简历 HTML】\n${window._lastOptimizedResumeHtml}`
+      : `You are a resume editor. Apply the user's instruction to the HTML resume below. Output ONLY the complete updated HTML document starting with <!DOCTYPE html> — no explanations. Keep the original visual design. Wrap any changed text with <span class="opt-highlight"> (CSS: .opt-highlight { background: #fef08a; border-radius: 2px; }).\n\n[Instruction]\n${instruction}\n\n[Current Resume HTML]\n${window._lastOptimizedResumeHtml}`;
 
-      const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
-      const data = res ? await res.json() : null;
-      if (!res || !res.ok) {
-        thinkingBubble.textContent = data?.detail || t('resumeChatFailed');
-      } else {
-        let html = (data?.answer || '').trim();
-        html = html.replace(/^```[a-z]*\n?/, '').replace(/\n?```$/, '');
-        if (html) {
-          window._lastOptimizedResumeHtml = html;
-          document.getElementById('jdOptResultBox').innerHTML =
-            `<iframe id="visualResumeFrame" style="width:100%;min-height:600px;border:none;border-radius:8px;" srcdoc="${html.replace(/"/g, '&quot;')}"></iframe>`;
-          thinkingBubble.textContent = t('resumeChatDone');
-          document.getElementById('jdChatHistory').classList.add('collapsed');
-          document.getElementById('jdScrollArea').scrollTop = 0;
-        } else {
-          thinkingBubble.textContent = t('resumeChatFailed');
-        }
-      }
+    const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
+    const data = res ? await res.json() : null;
+    if (!res || !res.ok) {
+      thinkingBubble.textContent = data?.detail || t('resumeChatFailed');
     } else {
-      const message = currentLang === 'zh'
-        ? `你是简历编辑助手。根据用户的修改指令，对以下简历进行调整。只输出修改后的完整简历（Markdown格式），不包含任何解释或说明。\n\n【修改指令】\n${instruction}\n\n【当前简历】\n${window._lastOptimizedResume}`
-        : `You are a resume editor. Apply the user's instruction to the resume below. Output ONLY the complete updated resume in Markdown format — no explanations.\n\n[Instruction]\n${instruction}\n\n[Current Resume]\n${window._lastOptimizedResume}`;
-
-      const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
-      const data = res ? await res.json() : null;
-      if (!res || !res.ok) {
-        thinkingBubble.textContent = data?.detail || t('resumeChatFailed');
+      let html = (data?.answer || '').trim();
+      html = html.replace(/^```[a-z]*\n?/, '').replace(/\n?```$/, '');
+      if (html) {
+        window._lastOptimizedResumeHtml = html;
+        document.getElementById('jdOptResultBox').innerHTML =
+          `<iframe id="visualResumeFrame" style="width:100%;min-height:600px;border:none;border-radius:8px;" srcdoc="${html.replace(/"/g, '&quot;')}"></iframe>`;
+        thinkingBubble.textContent = t('resumeChatDone');
+        document.getElementById('jdChatHistory').classList.add('collapsed');
+        document.getElementById('jdScrollArea').scrollTop = 0;
       } else {
-        const updated = data?.answer || '';
-        if (updated) {
-          window._lastOptimizedResume = updated;
-          document.getElementById('jdOptResultBox').innerHTML = renderResumeDoc(updated);
-          thinkingBubble.textContent = t('resumeChatDone');
-          document.getElementById('jdChatHistory').classList.add('collapsed');
-          document.getElementById('jdScrollArea').scrollTop = 0;
-        } else {
-          thinkingBubble.textContent = t('resumeChatFailed');
-        }
+        thinkingBubble.textContent = t('resumeChatFailed');
       }
     }
   } catch {
@@ -3363,9 +3259,10 @@ async function sendResumeChat() {
 }
 
 async function optimizeResume() {
-  const resume = window._resumeText || '';
-  const jd     = [window._jdFileText || '', document.getElementById('jdJD').value.trim()].filter(Boolean).join('\n\n');
-  if (!resume) { alert(t('resumeRequired')); return; }
+  const jd = [window._jdFileText || '', document.getElementById('jdJD').value.trim()].filter(Boolean).join('\n\n');
+  const useVisual = Array.isArray(window._resumePageImages) && window._resumePageImages.length > 0;
+  const useWord   = !useVisual && !!window._resumeWordB64;
+  if (!useVisual && !useWord) { alert(t('resumeRequired')); return; }
   if (_jdOptimizing) return;
   _jdOptimizing = true;
 
@@ -3379,50 +3276,26 @@ async function optimizeResume() {
   resultBox.innerHTML = `<div class="doc-loading"><span class="jd-spinner"></span>${t('resumeGenerating')}</div>`;
   window._lastOptimizedResumeHtml = null;
 
-  const useVisual = Array.isArray(window._resumePageImages) && window._resumePageImages.length > 0;
-  const useWord   = !useVisual && !!window._resumeWordB64;
-
   try {
-    let resOk = false, answer = '', html = '';
+    let resOk = false, html = '';
 
-    if (useVisual || useWord) {
-      const endpoint = useVisual ? '/optimize-resume-visual' : '/optimize-word-resume';
-      const body     = useVisual
-        ? { images: window._resumePageImages, jd }
-        : { word_b64: window._resumeWordB64, jd };
-      const res  = await apiFetch(endpoint, { method: 'POST', body: JSON.stringify(body) });
-      const data = res ? await res.json() : null;
-      if (!res || !res.ok) {
-        resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${data?.detail || t('resumeChatFailed')}</div>`;
-      } else {
-        html = data?.html || '';
-        if (html) {
-          window._lastOptimizedResumeHtml = html;
-          resultBox.className = '';
-          resultBox.innerHTML = `<iframe id="visualResumeFrame" style="width:100%;min-height:600px;border:none;border-radius:8px;" srcdoc="${html.replace(/"/g, '&quot;')}"></iframe>`;
-          resOk = true;
-        } else {
-          resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${t('resumeChatFailed')}</div>`;
-        }
-      }
+    const endpoint = useVisual ? '/optimize-resume-visual' : '/optimize-word-resume';
+    const body     = useVisual
+      ? { images: window._resumePageImages, jd }
+      : { word_b64: window._resumeWordB64, jd };
+    const res  = await apiFetch(endpoint, { method: 'POST', body: JSON.stringify(body) });
+    const data = res ? await res.json() : null;
+    if (!res || !res.ok) {
+      resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${data?.detail || t('resumeChatFailed')}</div>`;
     } else {
-      const message = currentLang === 'zh'
-        ? `你是一位资深职业顾问和简历撰写专家。请根据以下职位描述，对我的简历进行优化。直接输出简历正文（Markdown 格式），不需要任何解释、前言或评分。\n\n要求：\n- 严格保留原简历的章节顺序和结构，不新增、不删除、不调换任何板块\n- 保留所有真实事实：公司名、职位、时间、学校、学历等不可虚构或更改\n- 数字和成果只能优化表达方式，不得自行添加原简历中没有的数字或比例\n- 输出语言与原简历保持一致：中文简历输出中文，英文简历输出英文，混排则保持混排\n- 优化措辞，使用强有力的动词，突出成果导向\n- 针对 JD 关键词调整表达，提升 ATS 命中率，关键词须自然融入语境，不得堆砌\n- 每条工作经历的要点数量与原简历保持一致\n- 总字数与原简历保持相近，不得大幅扩充内容\n- 整体风格专业、简洁、有说服力\n\n【职位描述】\n${jd || '（未提供）'}\n\n【我的原简历】\n${resume}`
-        : `You are a senior career consultant and resume writing expert. Optimize my resume based on the job description below. Output ONLY the resume body in Markdown format — no explanations, no preamble, no scores.\n\nRequirements:\n- Keep the exact section order and structure of the original resume — do not add, remove, or reorder any sections\n- Preserve all factual details: company names, job titles, dates, schools, degrees — never fabricate or alter them\n- Never invent numbers or percentages that do not exist in the original — only reframe existing ones more compellingly\n- Match the language of the original resume: Chinese in → Chinese out, English in → English out, mixed → keep mixed\n- Optimize wording with strong action verbs and an outcome-focused tone\n- Weave in JD keywords naturally to improve ATS hit rate — no keyword stuffing\n- Keep the same number of bullet points per role as the original\n- Keep total length close to the original — do not significantly expand the content\n- Professional, concise, and compelling tone\n\n[Job Description]\n${jd || '(not provided)'}\n\n[My Original Resume]\n${resume}`;
-      const res  = await apiFetch('/analyze', { method: 'POST', body: JSON.stringify({ message }) });
-      const data = res ? await res.json() : null;
-      if (!res || !res.ok) {
-        resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${data?.detail || t('resumeChatFailed')}</div>`;
+      html = data?.html || '';
+      if (html) {
+        window._lastOptimizedResumeHtml = html;
+        resultBox.className = '';
+        resultBox.innerHTML = `<iframe id="visualResumeFrame" style="width:100%;min-height:600px;border:none;border-radius:8px;" srcdoc="${html.replace(/"/g, '&quot;')}"></iframe>`;
+        resOk = true;
       } else {
-        answer = data?.answer || '';
-        if (answer) {
-          window._lastOptimizedResume = answer;
-          resultBox.className = 'resume-doc';
-          resultBox.innerHTML = renderResumeDoc(answer);
-          resOk = true;
-        } else {
-          resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${t('resumeChatFailed')}</div>`;
-        }
+        resultBox.innerHTML = `<div style="padding:20px;color:#c0392b;">${t('resumeChatFailed')}</div>`;
       }
     }
 
@@ -3442,7 +3315,13 @@ async function optimizeResume() {
 }
 
 async function downloadResumeDocx() {
-  const content = window._lastOptimizedResume || document.getElementById('jdOptResultBox').innerText;
+  if (!window._lastOptimizedResumeHtml) {
+    alert(currentLang === 'zh' ? '请先生成优化简历' : 'Please generate the optimized resume first');
+    return;
+  }
+  const parsed = new DOMParser().parseFromString(window._lastOptimizedResumeHtml, 'text/html');
+  parsed.querySelectorAll('.opt-highlight').forEach(el => el.replaceWith(el.textContent));
+  const content = parsed.body.innerText.trim();
   if (!content) {
     alert(currentLang === 'zh' ? '请先生成优化简历' : 'Please generate the optimized resume first');
     return;
@@ -3450,7 +3329,7 @@ async function downloadResumeDocx() {
   try {
     const res = await apiFetch('/export-resume', {
       method: 'POST',
-      body: JSON.stringify({ content: window._lastOptimizedResume || content, format: 'docx' })
+      body: JSON.stringify({ content, format: 'docx' })
     });
     if (!res.ok) throw new Error('Export failed');
     const blob = await res.blob();
@@ -3476,7 +3355,9 @@ async function downloadResumePdf() {
     setTimeout(() => win.print(), 500);
     return;
   }
-  const content = window._lastOptimizedResume || document.getElementById('jdOptResultBox').innerText;
+  const parsed2 = new DOMParser().parseFromString(window._lastOptimizedResumeHtml, 'text/html');
+  parsed2.querySelectorAll('.opt-highlight').forEach(el => el.replaceWith(el.textContent));
+  const content = parsed2.body.innerText.trim();
   if (!content) {
     alert(currentLang === 'zh' ? '请先生成优化简历' : 'Please generate the optimized resume first');
     return;
@@ -3484,7 +3365,7 @@ async function downloadResumePdf() {
   try {
     const res = await apiFetch('/export-resume', {
       method: 'POST',
-      body: JSON.stringify({ content: window._lastOptimizedResume || content, format: 'pdf' })
+      body: JSON.stringify({ content, format: 'pdf' })
     });
     if (!res.ok) throw new Error('Export failed');
     const blob = await res.blob();
@@ -3499,28 +3380,6 @@ async function downloadResumePdf() {
   }
 }
 
-function downloadResumeMd() {
-  const content = window._lastOptimizedResume;
-  if (!content) { alert(currentLang === 'zh' ? '请先生成优化简历' : 'Please generate the optimized resume first'); return; }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], { type: 'text/markdown' }));
-  a.download = 'optimized-resume.md';
-  a.click();
-}
-
-function downloadResumeTxt() {
-  const content = window._lastOptimizedResume;
-  if (!content) { alert(currentLang === 'zh' ? '请先生成优化简历' : 'Please generate the optimized resume first'); return; }
-  const txt = content
-    .replace(/^#{1,3} /gm, '')
-    .replace(/\*\*(.+?)\*\*/g, '$1')
-    .replace(/\*(.+?)\*/g, '$1')
-    .replace(/^[-*•] /gm, '• ');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' }));
-  a.download = 'optimized-resume.txt';
-  a.click();
-}
 
 // ── Resume file upload ──
 
@@ -3564,9 +3423,21 @@ async function handleResumeUpload(input) {
       let binary = '';
       bytes.forEach(b => binary += String.fromCharCode(b));
       window._resumeWordB64 = btoa(binary);
-      text = await file.text();
-    } else {
-      text = await file.text();
+      const fd = new FormData(); fd.append('file', file);
+      const r = await apiFetch('/parse-jd', { method: 'POST', body: fd });
+      const d = r ? await r.json() : null;
+      text = d?.text || '';
+    } else if (file.type.startsWith('image/')) {
+      const b64 = await new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result.split(',')[1]);
+        reader.readAsDataURL(file);
+      });
+      window._resumePageImages = [b64];
+      const fd = new FormData(); fd.append('file', file);
+      const r = await apiFetch('/parse-jd', { method: 'POST', body: fd });
+      const d = r ? await r.json() : null;
+      text = d?.text || '';
     }
     text = text.trim();
     window._resumeText = text;
@@ -3594,8 +3465,17 @@ async function handleJDUpload(input) {
   nameEl.style.color = '#888070';
   try {
     let text = '';
+    const isDocx = file.name.endsWith('.docx') || (file.type || '').includes('wordprocessingml');
+    const isImage = file.type.startsWith('image/');
     if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
       text = await extractPdfText(file);
+    } else if (isDocx || isImage) {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await apiFetch('/parse-jd', { method: 'POST', body: formData });
+      const data = res ? await res.json() : null;
+      if (!res || !res.ok) throw new Error(data?.detail || 'parse error');
+      text = data?.text || '';
     } else {
       text = await file.text();
     }
@@ -3665,8 +3545,9 @@ function loadSavedResume() {
     if (nameEl) {
       const filename = localStorage.getItem(RESUME_FILENAME_KEY) || '';
       if (filename) {
-        nameEl.textContent = filename;
-        nameEl.style.color = '#3a3528';
+        const needsReupload = /\.(pdf|docx|jpe?g|png|webp)$/i.test(filename);
+        nameEl.textContent = needsReupload ? `${filename} (重新上传后可优化)` : filename;
+        nameEl.style.color = needsReupload ? '#b0a898' : '#3a3528';
       }
     }
   }
@@ -3699,6 +3580,8 @@ function clearResume() {
   localStorage.removeItem(RESUME_STORAGE_KEY);
   localStorage.removeItem(RESUME_FILENAME_KEY);
   window._resumeText = '';
+  window._resumePageImages = null;
+  window._resumeWordB64 = null;
   const nameEl = document.getElementById('jdResumeFileName');
   if (nameEl) nameEl.textContent = '';
 }
@@ -3722,16 +3605,19 @@ function renderJDResult(data) {
   const atsTags = ats.map(a => {
     const kw  = esc(typeof a === 'object' ? (a.kw || '') : String(a));
     const hit = typeof a === 'object' ? a.hit : false;
-    if (hit === true)       return `<span class="match-tag match-tag-hit">✓ ${kw}</span>`;
-    if (hit === 'partial')  return `<span class="match-tag match-tag-partial">~ ${kw}</span>`;
+    if (hit === true) return `<span class="match-tag match-tag-ats-hit">✓ ${kw}</span>`;
     return `<span class="match-tag" style="background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;">✕ ${kw}</span>`;
   }).join('');
 
-  const hitCount  = ats.filter(a => typeof a === 'object' && (a.hit === true || a.hit === 'partial')).length;
+  const hitCount  = ats.filter(a => typeof a === 'object' && a.hit === true).length;
   const atsDelay  = 0.08 + (matched.length ? 0.14 : 0) + (gaps.length ? 0.14 : 0);
 
   return `
-    ${data.summary ? `<div class="result-block-in" style="animation-delay:0s;margin-bottom:20px;">
+    ${data.score != null ? `<div class="result-block-in" style="animation-delay:0s;text-align:center;margin-bottom:16px;">
+      <div style="font-size:52px;font-weight:700;line-height:1;color:${data.score>=75?'#065f46':data.score>=50?'#92400e':'#991b1b'};">${data.score}<span style="font-size:22px;font-weight:500;color:#888070;">%</span></div>
+      <div style="font-size:15px;color:#888070;margin-top:6px;">${currentLang==='zh'?'匹配度':'Match Score'}</div>
+    </div>` : ''}
+    ${data.summary ? `<div class="result-block-in" style="animation-delay:0.04s;margin-bottom:20px;">
       <p class="jd-summary-text">${esc(data.summary)}</p>
     </div>` : ''}
     ${(matched.length || gaps.length) ? `
@@ -3783,8 +3669,8 @@ async function analyzeMatch() {
   resultSection.style.display = 'block';
 
   const message = currentLang === 'zh'
-    ? `你是资深招聘官，分析职位描述与简历的匹配度。所有输出必须用中文。严格只输出JSON，不含任何其他文字。\n\n匹配度计算：硬性要求满足率（70%权重）+ ATS关键词命中率（30%权重）。硬性要求指学历、证书、必要技能、明确年限等不可绕过的门槛。\n\n输出格式：\n{"summary":"<2-3句，含匹配度百分比及简要计算依据，直接点出最关键匹配点和最致命缺口，语气客观直接>","matched":[{"point":"<匹配点，8字以内>","evidence":"<简历原文依据，15字以内>"},...],"gaps":[{"point":"<缺口，8字以内>","note":"<为何是缺口及影响，15字以内>","severity":"hard或soft"},...],"ats":[{"kw":"<技能/工具/证书/语言>","hit":true或false或"partial"},...]}\n\n规则：matched≤5条，gaps≤5条，ats≤12个。\nseverity说明：hard=硬门槛（缺失基本无缘面试），soft=加分项缺失（有影响但不致命）。\nhit说明：true=简历中明确体现，"partial"=有相关经验但未完全匹配，false=完全缺失。\n\n【职位描述】\n${jd}\n\n【我的简历】\n${resume}`
-    : `You are a senior recruiter. Analyze resume-JD fit. Output ONLY valid JSON, no other text.\n\nScoring: match % = hard requirements met (70%) + ATS keyword hit rate (30%). Hard requirements are non-negotiable: degree, certifications, mandatory skills, years of experience explicitly required.\n\nOutput format:\n{"summary":"<2-3 sentences, include match % with brief rationale, name the top strength and the single most critical blocker>","matched":[{"point":"<≤6 words>","evidence":"<direct resume evidence, ≤12 words>"},...],"gaps":[{"point":"<≤6 words>","note":"<why it matters and its impact, ≤12 words>","severity":"hard or soft"},...],"ats":[{"kw":"<skill/tool/cert>","hit":true or false or "partial"},...]}\\n\nRules: matched≤5, gaps≤5, ats≤12.\nseverity: hard=dealbreaker (likely screened out without it), soft=nice-to-have (missing but not fatal).\nhit: true=explicitly in resume, "partial"=related but not exact match, false=absent.\n\n[Job Description]\n${jd}\n\n[My Resume]\n${resume}`;
+    ? `你是资深招聘官，分析职位描述与简历的匹配度。所有输出必须用中文。严格只输出JSON，不含任何其他文字。\n\n匹配度计算：硬性要求满足率（70%权重）+ ATS关键词命中率（30%权重）。硬性要求指学历、证书、必要技能、明确年限等不可绕过的门槛。\n\n输出格式：\n{"score":<0-100的整数匹配度>,"summary":"<2-3句完整句子，以第二人称直接告知求职者（用"你"而非"候选人"），逻辑清晰，先说核心优势，再说最致命缺口，不使用破折号，不重复百分比>","matched":[{"point":"<匹配点，8字以内>","evidence":"<简历原文依据，15字以内>"},...],"gaps":[{"point":"<缺口，8字以内>","note":"<为何是缺口及影响，15字以内>","severity":"hard或soft"},...],"ats":[{"kw":"<技能/工具/证书/语言>","hit":true或false},...]}\n\n规则：matched≤5条，gaps≤5条，ats≤12个。\nseverity说明：hard=硬门槛（缺失基本无缘面试），soft=加分项缺失（有影响但不致命）。\nhit说明：true=简历中有体现，false=完全缺失。\n\n【职位描述】\n${jd}\n\n【我的简历】\n${resume}`
+    : `You are a senior recruiter. Analyze resume-JD fit. Output ONLY valid JSON, no other text.\n\nScoring: match % = hard requirements met (70%) + ATS keyword hit rate (30%). Hard requirements are non-negotiable: degree, certifications, mandatory skills, years of experience explicitly required.\n\nOutput format:\n{"score":<integer 0-100>,"summary":"<2-3 complete sentences in second person, addressing the candidate directly as 'you'. Lead with the strongest match, then state the most critical gap. No dashes. Do not repeat the score.>","matched":[{"point":"<≤6 words>","evidence":"<direct resume evidence, ≤12 words>"},...],"gaps":[{"point":"<≤6 words>","note":"<why it matters and its impact, ≤12 words>","severity":"hard or soft"},...],"ats":[{"kw":"<skill/tool/cert>","hit":true or false},...]}\\n\nRules: matched≤5, gaps≤5, ats≤12.\nseverity: hard=dealbreaker (likely screened out without it), soft=nice-to-have (missing but not fatal).\nhit: true=explicitly in resume, false=absent.\n\n[Job Description]\n${jd}\n\n[My Resume]\n${resume}`;
 
   try {
     const res = await apiFetch('/analyze', {

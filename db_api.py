@@ -17,7 +17,6 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from openai import OpenAI
-import anthropic
 import mammoth
 from typing import List, Optional
 import os
@@ -38,7 +37,8 @@ logging.basicConfig(
 
 DEEPSEEK_API_KEY = os.environ["DEEPSEEK_API_KEY"]
 DEEPSEEK_BASE_URL = "https://api.deepseek.com"
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+QWEN_API_KEY = os.environ.get("QWEN_API_KEY", "")
+QWEN_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 
 SQL_SYSTEM_PROMPT = """你是一个求职数据分析助手，专门帮助用户查询和分析他们的求职申请记录数据库。
 
@@ -631,8 +631,8 @@ PARSE_IMAGE_DAILY_LIMIT = 30
 @app.post("/applications/parse-image")
 @limiter.limit("10/minute")
 async def parse_image(request: Request, file: UploadFile = File(...), user_id: int = Depends(get_current_user)):
-    if not ANTHROPIC_API_KEY:
-        raise HTTPException(status_code=501, detail="ANTHROPIC_API_KEY not configured")
+    if not QWEN_API_KEY:
+        raise HTTPException(status_code=501, detail="QWEN_API_KEY not configured")
 
     today = datetime.utcnow().date()
     conn = get_db()
@@ -660,19 +660,19 @@ async def parse_image(request: Request, file: UploadFile = File(...), user_id: i
     if media_type not in ("image/jpeg", "image/png", "image/gif", "image/webp"):
         media_type = "image/jpeg"
     try:
-        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-        response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+        qwen_client = OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL)
+        response = qwen_client.chat.completions.create(
+            model="qwen-vl-plus",
             max_tokens=512,
             messages=[{
                 "role": "user",
                 "content": [
-                    {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": b64}},
+                    {"type": "image_url", "image_url": {"url": f"data:{media_type};base64,{b64}"}},
                     {"type": "text", "text": PARSE_IMAGE_PROMPT}
                 ]
             }]
         )
-        text = response.content[0].text.strip()
+        text = response.choices[0].message.content.strip()
         if text.startswith("```"):
             text = re.sub(r"^```[a-z]*\n?", "", text).rstrip("`").strip()
         return json.loads(text)
@@ -680,6 +680,47 @@ async def parse_image(request: Request, file: UploadFile = File(...), user_id: i
         raise HTTPException(status_code=500, detail="AI returned unparseable response")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ── JD text extraction endpoint ──
+
+@app.post("/parse-jd")
+@limiter.limit("20/minute")
+async def parse_jd(request: Request, file: UploadFile = File(...), user_id: int = Depends(get_current_user)):
+    data = await file.read()
+    filename = file.filename or ""
+    content_type = file.content_type or ""
+
+    # Word docx
+    if filename.endswith(".docx") or "wordprocessingml" in content_type:
+        try:
+            result = mammoth.extract_raw_text(io.BytesIO(data))
+            text = result.value.strip()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Word 解析失败: {str(e)}")
+        return {"text": text}
+
+    # Image
+    if content_type.startswith("image/") or any(filename.lower().endswith(ext) for ext in (".jpg", ".jpeg", ".png", ".webp")):
+        if not QWEN_API_KEY:
+            raise HTTPException(status_code=501, detail="QWEN_API_KEY not configured")
+        b64 = base64.standard_b64encode(data).decode("utf-8")
+        media_type = content_type if content_type.startswith("image/") else "image/jpeg"
+        try:
+            qwen_client = OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL)
+            resp = qwen_client.chat.completions.create(
+                model="qwen-vl-plus",
+                max_tokens=2048,
+                messages=[{"role": "user", "content": [
+                    {"type": "image_url", "image_url": {"url": f"data:{media_type};base64,{b64}"}},
+                    {"type": "text", "text": "Extract all text from this job description image. Output only the plain text content, no explanations."}
+                ]}]
+            )
+            text = resp.choices[0].message.content.strip()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+        return {"text": text}
+
+    raise HTTPException(status_code=400, detail="Unsupported file type")
 
 # ── Chat endpoint ──
 
@@ -718,7 +759,7 @@ def chat(request: Request, req: ChatRequest, user_id: int = Depends(get_current_
         {"role": "user", "content": req.message}
     ]
     sql_resp = client.chat.completions.create(
-        model="deepseek-v4-flash", messages=messages, temperature=0
+        model="deepseek-v4-pro", messages=messages, temperature=0
     )
     raw = sql_resp.choices[0].message.content.strip()
 
@@ -767,7 +808,7 @@ def chat(request: Request, req: ChatRequest, user_id: int = Depends(get_current_
         {"role": "user", "content": user_content}
     ]
     explain_resp = client.chat.completions.create(
-        model="deepseek-v4-flash", messages=explain_messages, temperature=0
+        model="deepseek-v4-pro", messages=explain_messages, temperature=0
     )
     answer = explain_resp.choices[0].message.content.strip()
     return {"answer": answer, "sql": sql_or_reject}
@@ -779,9 +820,6 @@ ANALYZE_DAILY_LIMIT = 30
 @app.post("/analyze")
 @limiter.limit("10/minute")
 def analyze(request: Request, req: AnalyzeRequest, user_id: int = Depends(get_current_user)):
-    if not ANTHROPIC_API_KEY:
-        raise HTTPException(status_code=501, detail="ANTHROPIC_API_KEY not configured")
-
     today = datetime.utcnow().date()
     conn = get_db()
     cur = conn.cursor()
@@ -803,20 +841,20 @@ def analyze(request: Request, req: AnalyzeRequest, user_id: int = Depends(get_cu
     if req.type == "fate":
         ds_client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
         resp = ds_client.chat.completions.create(
-            model="deepseek-v4-flash",
+            model="deepseek-v4-pro",
             messages=[{"role": "user", "content": req.message}],
             temperature=0.9,
             max_tokens=512,
         )
         return {"answer": resp.choices[0].message.content.strip()}
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    response = client.messages.create(
-        model="claude-sonnet-4-6",
+    ds_client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
+    resp = ds_client.chat.completions.create(
+        model="deepseek-v4-pro",
         max_tokens=4096,
         messages=[{"role": "user", "content": req.message}]
     )
-    return {"answer": response.content[0].text.strip()}
+    return {"answer": resp.choices[0].message.content.strip()}
 
 # ── Visual resume optimization endpoint ──
 
@@ -827,8 +865,8 @@ class VisualResumeRequest(BaseModel):
 @app.post("/optimize-resume-visual")
 @limiter.limit("5/minute")
 def optimize_resume_visual(request: Request, req: VisualResumeRequest, user_id: int = Depends(get_current_user)):
-    if not ANTHROPIC_API_KEY:
-        raise HTTPException(status_code=501, detail="ANTHROPIC_API_KEY not configured")
+    if not QWEN_API_KEY:
+        raise HTTPException(status_code=501, detail="QWEN_API_KEY not configured")
 
     today = datetime.utcnow().date()
     conn = get_db()
@@ -853,35 +891,35 @@ def optimize_resume_visual(request: Request, req: VisualResumeRequest, user_id: 
     for i, img_b64 in enumerate(images):
         content.append({"type": "text", "text": f"Resume page {i + 1}:"})
         content.append({
-            "type": "image",
-            "source": {"type": "base64", "media_type": "image/jpeg", "data": img_b64}
+            "type": "image_url",
+            "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"}
         })
 
     jd_section = f"\n\n[Job Description]\n{req.jd}" if req.jd.strip() else ""
-    content.append({"type": "text", "text": f"""Analyze the visual design of this resume and generate an optimized version as a complete, self-contained HTML document.
+    content.append({"type": "text", "text": f"""You are a professional resume designer and career consultant. Above are the resume pages as images.
 
-Requirements:
-- Replicate the exact visual design: layout, color scheme, typography, spacing, section structure
-- Preserve all factual content: company names, job titles, dates, schools, degrees — never fabricate
-- Optimize wording with strong action verbs and ATS keywords woven in naturally — no keyword stuffing
-- Keep the same section order and number of bullet points per role as the original
-- Do not invent numbers or percentages not present in the original
-- Match the language of the original resume exactly
-- Keep total content length similar to the original — do not significantly expand
+Generate a complete, self-contained HTML document that:
+- Replicates the exact visual design: layout, color scheme, typography, spacing, section structure
+- Preserves all factual content: company names, job titles, dates, schools, degrees — never fabricate or alter them
+- Optimizes wording with strong action verbs and ATS keywords woven in naturally — no keyword stuffing
+- Keeps the same section order and number of bullet points per role as the original
+- Does not invent numbers or percentages not present in the original
+- Matches the language of the original resume exactly
+- Keeps total content length similar to the original — do not significantly expand
 - HTML must be completely self-contained: all CSS in a <style> tag, no external dependencies
 - Must be print-ready: A4 page size, proper margins for clean PDF export via browser print
 - Highlight every word or phrase you changed or added by wrapping it with <span class="opt-highlight">...</span>. Add this CSS: .opt-highlight {{ background: #fef08a; border-radius: 2px; }}{jd_section}
 
 Output ONLY the complete HTML document starting with <!DOCTYPE html>. No explanations, no markdown code blocks."""})
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    response = client.messages.create(
-        model="claude-sonnet-4-6",
+    qwen_client = OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL)
+    response = qwen_client.chat.completions.create(
+        model="qwen-vl-max",
         max_tokens=8192,
         messages=[{"role": "user", "content": content}]
     )
 
-    html = response.content[0].text.strip()
+    html = response.choices[0].message.content.strip()
     html = re.sub(r'^```[a-z]*\n?', '', html)
     html = re.sub(r'\n?```$', '', html)
 
@@ -896,9 +934,6 @@ class WordResumeRequest(BaseModel):
 @app.post("/optimize-word-resume")
 @limiter.limit("5/minute")
 def optimize_word_resume(request: Request, req: WordResumeRequest, user_id: int = Depends(get_current_user)):
-    if not ANTHROPIC_API_KEY:
-        raise HTTPException(status_code=501, detail="ANTHROPIC_API_KEY not configured")
-
     today = datetime.utcnow().date()
     conn = get_db()
     cur = conn.cursor()
@@ -925,10 +960,10 @@ def optimize_word_resume(request: Request, req: WordResumeRequest, user_id: int 
         raise HTTPException(status_code=400, detail=f"Word 解析失败: {str(e)}")
 
     jd_section = f"\n\n[Job Description]\n{req.jd}" if req.jd.strip() else ""
-    prompt = f"""You are a professional resume designer and career consultant. Below is the HTML source of my resume (converted from Word), preserving the original formatting, colors, fonts, and structure.
+    prompt = f"""You are a professional resume designer and career consultant. Below is the HTML source of my resume (converted from Word).
 
 Generate a complete, self-contained HTML document that:
-- Replicates the visual design from the source HTML (colors, fonts, layout, spacing, section structure)
+- Replicates the exact visual design: layout, color scheme, typography, spacing, section structure
 - Preserves all factual content: company names, job titles, dates, schools, degrees — never fabricate or alter them
 - Optimizes wording with strong action verbs and ATS keywords woven in naturally — no keyword stuffing
 - Keeps the same section order and number of bullet points per role as the original
@@ -936,7 +971,7 @@ Generate a complete, self-contained HTML document that:
 - Matches the language of the original resume exactly
 - Keeps total content length similar to the original — do not significantly expand
 - HTML must be completely self-contained: all CSS in a <style> tag, no external dependencies
-- Must be print-ready: A4 page size, proper margins for PDF export via browser print
+- Must be print-ready: A4 page size, proper margins for clean PDF export via browser print
 - Highlight every word or phrase you changed or added by wrapping it with <span class="opt-highlight">...</span>. Add this CSS: .opt-highlight {{ background: #fef08a; border-radius: 2px; }}
 
 [Original Resume HTML]
@@ -944,14 +979,14 @@ Generate a complete, self-contained HTML document that:
 
 Output ONLY the complete HTML document starting with <!DOCTYPE html>. No explanations, no markdown code blocks."""
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    response = client.messages.create(
-        model="claude-sonnet-4-6",
+    ds_client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url=DEEPSEEK_BASE_URL)
+    resp = ds_client.chat.completions.create(
+        model="deepseek-v4-pro",
         max_tokens=8192,
         messages=[{"role": "user", "content": prompt}]
     )
 
-    html = response.content[0].text.strip()
+    html = resp.choices[0].message.content.strip()
     html = re.sub(r'^```[a-z]*\n?', '', html)
     html = re.sub(r'\n?```$', '', html)
     return {"html": html}
