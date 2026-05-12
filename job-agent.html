@@ -1046,10 +1046,6 @@
         <label data-i18n="authLabelPassword"></label>
         <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password">
       </div>
-      <div class="auth-row" id="inviteRow" style="display:none">
-        <label data-i18n="authLabelInvite"></label>
-        <input id="authInviteCode" type="text" data-i18n-placeholder="authInvitePlaceholder">
-      </div>
       <button class="auth-btn" id="authBtn" onclick="submitAuth()" data-i18n="authBtnLogin"></button>
       <div class="auth-toggle">
         <span id="authToggleText" data-i18n="authToggleToRegister"></span>
@@ -2213,8 +2209,6 @@ function toggleAuthMode() {
   document.getElementById('authBtn').textContent        = t(isRegister ? 'authBtnRegister'        : 'authBtnLogin');
   document.getElementById('authToggleText').textContent = t(isRegister ? 'authToggleToLogin'      : 'authToggleToRegister');
   document.getElementById('authToggleLink').textContent = t(isRegister ? 'authToggleLinkLogin'    : 'authToggleLinkRegister');
-  document.getElementById('inviteRow').style.display    = isRegister ? 'flex' : 'none';
-  document.getElementById('authInviteCode').value = '';
   setAuthError('');
 }
 
@@ -2236,9 +2230,6 @@ async function submitAuth() {
 
   const endpoint = authMode === 'register' ? '/auth/register' : '/auth/login';
   const body = { email, password };
-  if (authMode === 'register') {
-    body.invite_code = document.getElementById('authInviteCode').value.trim();
-  }
 
   try {
     const res = await fetch(`${API}${endpoint}`, {

@@ -188,7 +188,6 @@ class ApplicationRequest(BaseModel):
 class AuthRequest(BaseModel):
     email: str
     password: str
-    invite_code: Optional[str] = None
 
 class ResetPasswordRequest(BaseModel):
     new_password: str
@@ -257,20 +256,9 @@ def get_admin_user(credentials: HTTPAuthorizationCredentials = Depends(bearer)) 
 @app.post("/auth/register")
 @limiter.limit("5/hour")
 def register(request: Request, req: AuthRequest):
-    if not req.invite_code:
-        raise HTTPException(status_code=400, detail="邀请码不能为空")
     conn = get_db()
     cur = conn.cursor()
     try:
-        # 验证邀请码
-        cur.execute(
-            "SELECT id FROM invite_codes WHERE code=%s AND is_active=TRUE AND used_by IS NULL",
-            (req.invite_code,)
-        )
-        code_row = cur.fetchone()
-        if not code_row:
-            raise HTTPException(status_code=400, detail="邀请码无效或已被使用")
-
         cur.execute("SELECT id FROM users WHERE email=%s", (req.email,))
         if cur.fetchone():
             raise HTTPException(status_code=400, detail="Email already registered")
@@ -281,12 +269,6 @@ def register(request: Request, req: AuthRequest):
         )
         row = cur.fetchone()
         user_id = row[0]
-
-        # 标记邀请码已使用
-        cur.execute(
-            "UPDATE invite_codes SET used_by=%s, used_at=NOW() WHERE id=%s",
-            (user_id, code_row[0])
-        )
         conn.commit()
         return {"token": create_token(user_id, row[1]), "email": req.email, "is_admin": row[1]}
     finally:
